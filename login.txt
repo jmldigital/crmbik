@@ -1,0 +1,91 @@
+// src/routes/Login.svelte
+<script>
+  import { navigate } from 'svelte-routing'
+  import { supabase } from '../lib/supabase'
+  
+  let email = ''
+  let password = ''
+  let errorMessage = ''
+
+  async function handleLogin() {
+    try {
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password
+      })
+      
+      if (error) throw error
+      
+      navigate('/clients')
+    } catch (error) {
+      errorMessage = error.message
+    }
+  }
+</script>
+
+<div class="login-container">
+  <h1>Вход в систему</h1>
+  
+  <form on:submit|preventDefault={handleLogin}>
+    <div class="form-group">
+      <label for="email">Email:</label>
+      <input 
+        type="email" 
+        id="email" 
+        bind:value={email} 
+        required
+      />
+    </div>
+    
+    <div class="form-group">
+      <label for="password">Пароль:</label>
+      <input 
+        type="password" 
+        id="password" 
+        bind:value={password} 
+        required
+      />
+    </div>
+    
+    {#if errorMessage}
+      <p class="error">{errorMessage}</p>
+    {/if}
+    
+    <button type="submit">Войти</button>
+  </form>
+</div>
+
+<style>
+  .login-container {
+    max-width: 400px;
+    margin: 2rem auto;
+    padding: 2rem;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+  }
+  
+  .form-group {
+    margin-bottom: 1rem;
+  }
+  
+  input {
+    width: 100%;
+    padding: 0.5rem;
+    margin-top: 0.25rem;
+  }
+  
+  .error {
+    color: red;
+    margin-top: 1rem;
+  }
+  
+  button {
+    width: 100%;
+    padding: 0.75rem;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+  }
+</style>
