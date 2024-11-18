@@ -2,7 +2,8 @@
   import { Router, Link, Route } from "svelte-routing";
   import Login from "./routes/Login.svelte";
   import Clients from "./routes/Clients.svelte";
-  
+  import '../src/carbon.scss';
+
   console.log('App.svelte: Component initialized');
   
   let url = window.location.pathname;

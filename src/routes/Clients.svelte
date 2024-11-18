@@ -2,6 +2,11 @@
 <script>
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase'
+
+
+  import { Select, SelectItem,TextInput,Button,Link,DataTable } from "carbon-components-svelte";
+  import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
+ 
   
   let clients = []
   let newClient = {
@@ -32,6 +37,7 @@
     }
     
     clients = data
+    console.log(clients);
   }
 
   function handleSubmit(e) {
@@ -97,6 +103,13 @@
     editingClient = null
     await loadClients()
   }
+
+
+
+ 
+
+
+  
 </script>
 
 <div class="clients-container">
@@ -109,40 +122,40 @@
   <div class="add-client-form">
     <h2>Добавить нового клиента</h2>
     <div class="form-group">
-      <input 
+      <TextInput 
         type="text" 
         placeholder="Имя" 
         value={newClient.first_name}
         onchange={(e) => newClient.first_name = e.target.value}
         required
       />
-      <input 
+      <TextInput 
         type="text" 
         placeholder="Фамилия" 
         value={newClient.last_name}
         onchange={(e) => newClient.last_name = e.target.value}
         
       />
-      <input 
+      <TextInput 
         type="tel" 
         placeholder="Телефон" 
         value={newClient.phone}
         onchange={(e) => newClient.phone = e.target.value}
       />
-      <input 
+      <TextInput 
         type="text" 
         placeholder="Источник" 
         value={newClient.source}
         onchange={(e) => newClient.source = e.target.value}
         required
       />
-      <input 
+      <TextInput 
         type="email" 
         placeholder="Email" 
         value={newClient.email}
         onchange={(e) => newClient.email = e.target.value}
       />
-      <select 
+      <Select 
       id="status"
       value={newClient.status}
       onchange={(e) => newClient.status = e.target.value}
@@ -150,44 +163,46 @@
       <option value="Новый">Новый</option>
       <option value="В работе">В работе</option>
       <option value="Завершен">Завершен</option>
-    </select>
-    <button type="submit">Добавить клиента</button>
+    </Select>
+    <Button type="submit">Добавить клиента</Button>
     </div>
   </div>
 
   </form>
 
-  <!-- Таблица клиентов -->
-  <table>
-    <thead>
-      <tr>
-        <th>Имя</th>
-        <th>Фамилия</th>
-        <th>Телефон</th>
-        <th>Источник</th>
-        <th>Email</th>
-        <th>Статус</th>
-        <th>Действия</th>
-      </tr>
-    </thead>
-    <tbody>
-      {#each clients as client}
-        <tr>
-          <td>{client.first_name}</td>
-          <td>{client.last_name}</td>
-          <td>{client.phone}</td>
-          <td>{client.source}</td>
-          <td>{client.email}</td>
-          <td>{client.status}</td>
-          <td>
-            <button onclick={() => startEdit(client)}>
-              Редактировать
-            </button>
-          </td>
-        </tr>
-      {/each}
-    </tbody>
-  </table>
+
+
+  <DataTable
+  headers={[
+    { key: 'first_name', value: 'Имя' },
+    { key: 'last_name', value: 'Фамилия' },
+    { key: 'phone', value: 'Телефон' },
+    { key: 'source', value: 'Источник' },
+    { key: 'email', value: 'Email' },
+    { key: 'status', value: 'Статус' },
+    { key: 'actions', value: 'Действия' },
+  ]}
+  
+  rows={clients}
+  >
+
+   <svelte:fragment slot="cell" let:row let:cell>
+    {#if cell.key === 'actions'}
+      <Button
+        kind="ghost"
+        icon={Edit16}
+        on:click={() => startEdit(row)}
+      >
+        Редактировать
+      </Button>
+    {:else}
+      {cell.value}
+    {/if}
+  </svelte:fragment>
+
+
+</DataTable>
+
   
   <!-- Модальное окно редактирования -->
   {#if isEditing}
@@ -220,11 +235,11 @@
           <option value="Завершен">Завершен</option>
         </select>
         <div class="modal-buttons">
-          <button onclick={saveEdit}>Сохранить</button>
-          <button onclick={() => {
+          <Button onclick={saveEdit}>Сохранить</Button>
+          <Button onclick={() => {
             isEditing = false
             editingClient = null
-          }}>Отмена</button>
+          }}>Отмена</Button>
         </div>
       </div>
     </div>
@@ -236,21 +251,7 @@
     padding: 2rem;
   }
   
-  table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2rem;
-  }
   
-  th, td {
-    border: 1px solid #ddd;
-    padding: 0.5rem;
-    text-align: left;
-  }
-  
-  th {
-    background-color: #f5f5f5;
-  }
   
   .modal {
     position: fixed;
@@ -272,11 +273,6 @@
     max-width: 500px;
   }
   
-  .modal-buttons {
-    display: flex;
-    justify-content: space-between;
-    margin-top: 1rem;
-  }
   
   .add-client-form {
     margin-bottom: 2rem;
@@ -291,22 +287,9 @@
     margin-top: 1rem;
   }
   
-  input, select {
-    padding: 0.5rem;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-  }
+ 
   
-  button {
-    padding: 0.5rem 1rem;
-    background-color: #4CAF50;
-    color: white;
-    border: none;
-    border-radius: 4px;
-    cursor: pointer;
-  }
+ 
   
-  button:hover {
-    background-color: #45a049;
-  }
+ 
 </style>
