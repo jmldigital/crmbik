@@ -4,9 +4,9 @@
   import { supabase } from '../lib/supabase'
 
 
-  import { Select, SelectItem,TextInput,Button,Link,DataTable } from "carbon-components-svelte";
+  import { Select, SelectItem,TextInput,Button,Link,DataTable,Modal,Tag } from "carbon-components-svelte";
   import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
- 
+  let open = false;
   
   let clients = []
   let newClient = {
@@ -37,7 +37,7 @@
     }
     
     clients = data
-    console.log(clients);
+    // console.log(clients);
   }
 
   function handleSubmit(e) {
@@ -86,6 +86,7 @@
   function startEdit(client) {
     isEditing = true
     editingClient = { ...client }
+    open = true
   }
   
   async function saveEdit() {
@@ -104,9 +105,26 @@
     await loadClients()
   }
 
-
+  function stopEdit() {
+    isEditing = false
+    open = false
+    editingClient = null
+  }
 
  
+
+  function getTagType(status) {
+    switch (status) {
+      case 'Новый':
+        return 'green';
+      case 'В работе':
+        return 'blue';
+      case 'Завершен':
+        return 'red';
+      default:
+        return 'gray';
+    }
+  }
 
 
   
@@ -156,19 +174,24 @@
         onchange={(e) => newClient.email = e.target.value}
       />
       <Select 
-      id="status"
-      value={newClient.status}
-      onchange={(e) => newClient.status = e.target.value}
-    >
-      <option value="Новый">Новый</option>
-      <option value="В работе">В работе</option>
-      <option value="Завершен">Завершен</option>
-    </Select>
+      bind:selected={newClient.status}
+      on:change={(e) => newClient.status = e.target.value}
+      >
+      <SelectItem value="Новый" text="Новый" />
+      <SelectItem value="В работе" text="В работе" />
+      <SelectItem value="Завершен" text="Завершен" />
+      </Select>
+
+
     <Button type="submit">Добавить клиента</Button>
     </div>
   </div>
 
   </form>
+
+
+
+
 
 
 
@@ -195,56 +218,89 @@
       >
         Редактировать
       </Button>
+    {:else if cell.key === 'status'}
+    <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
     {:else}
       {cell.value}
     {/if}
+
+   
+
   </svelte:fragment>
+
+
+ 
 
 
 </DataTable>
 
-  
-  <!-- Модальное окно редактирования -->
-  {#if isEditing}
-    <div class="modal">
-      <div class="modal-content">
-        <h2>Редактировать клиента</h2>
-        <input 
-          type="text" 
-          bind:value={editingClient.first_name}
-        />
-        <input 
-          type="text" 
-          bind:value={editingClient.last_name}
-        />
-        <input 
-          type="tel" 
-          bind:value={editingClient.phone}
-        />
-        <input 
-          type="text" 
-          bind:value={editingClient.source}
-        />
-        <input 
-          type="email" 
-          bind:value={editingClient.email}
-        />
-        <select bind:value={editingClient.status}>
-          <option value="Новый">Новый</option>
-          <option value="В работе">В работе</option>
-          <option value="Завершен">Завершен</option>
-        </select>
-        <div class="modal-buttons">
-          <Button onclick={saveEdit}>Сохранить</Button>
-          <Button onclick={() => {
-            isEditing = false
-            editingClient = null
-          }}>Отмена</Button>
-        </div>
-      </div>
-    </div>
-  {/if}
+
+<!-- Модальное окно редактирования -->
+{#if isEditing} 
+
+
+
+<Modal
+  bind:open
+  modalHeading="Create database"
+  primaryButtonText="Confirm"
+  secondaryButtonText="Cancel"
+  on:click:button--secondary={stopEdit}
+  on:open
+  on:close
+  on:submit={saveEdit}
+>
+
+
+    <input 
+      type="text" 
+      bind:value={editingClient.first_name}
+    />
+    <input 
+      type="text" 
+      bind:value={editingClient.last_name}
+    />
+    <input 
+      type="tel" 
+      bind:value={editingClient.phone}
+    />
+    <input 
+      type="text" 
+      bind:value={editingClient.source}
+    />
+    <input 
+      type="email" 
+      bind:value={editingClient.email}
+    />
+    <Select 
+    bind:selected={editingClient.status}
+    on:change={(e) => editingClient.status = e.target.value}
+    >
+    <SelectItem value="Новый" text="Новый" />
+    <SelectItem value="В работе" text="В работе" />
+    <SelectItem value="Завершен" text="Завершен" />
+    </Select>
+    
+    <!-- bind:value={editingClient.status} -->
+
+
+      <!-- <Button onclick={saveEdit}>Сохранить</Button>
+      <Button onclick={() => {
+        isEditing = false
+        editingClient = null
+      }}>Отмена</Button> -->
+    
+
+  </Modal>
+
+
+  {/if} 
+
 </div>
+
+
+
+
 
 <style>
   .clients-container {
