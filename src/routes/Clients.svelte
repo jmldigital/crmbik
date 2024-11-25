@@ -30,8 +30,16 @@
   
   onMount(async () => {
     await loadClients()
+    // await loadAllEvents();
   })
+
+
+  function isAdmin(user) {
+   return user?.app_metadata?.role === 'admin';
+}
+let is_Admin = false
   
+  // Функция загрузки клиентов
   async function loadClients() {
   try {
     const { data: userData, error: authError } = await supabase.auth.getUser();
@@ -40,36 +48,91 @@
       return;
     }
 
-    const { data, error } = await supabase
-      .from('clients')
-      .select('*')
-      .eq('manager_id', userData.user.id);
+    let query = supabase.from('clients').select('*');
 
-    if (error) {
-      console.error('Error loading clientsыыыыыыы:', error);
-      return;
+    if (isAdmin(userData.user)) {
+      console.log('пользователь admin');
+      is_Admin = true;
+      // Загрузка всех клиентов для администратора
+      const { data, error } = await supabase.rpc('get_all_clients');
+      if (error) {
+        console.error('Error loading clients:', error);
+        return;
+      }
+      clients = data;
+    } else {
+      console.log('пользователь менеджер');
+      // Загрузка клиентов только для текущего менеджера
+      query = query.eq('manager_id', userData.user.id);
+      const { data, error } = await query;
+      if (error) {
+        console.error('Error loading clients:', error);
+        return;
+      }
+      clients = data;
     }
 
-    clients = data;
     console.log('Clients loaded:', clients);
   } catch (error) {
     console.error('Unexpected error:', error);
   }
 }
 
-  async function loadEventsForClient(clientId) {
-  const { data, error } = await supabase
-    .from('client_events')
-    .select('*')
-    .eq('client_id', clientId)
 
-  if (error) {
-    console.error('Error:', error)
-    return []
-  }
+  async function loadEventsForClient(clientId) {
+
+if (is_Admin) {
+  console.log('пользователь admin');
+      // Загрузка всех клиентов для администратора
+  const { data, error } = await supabase.rpc('get_all_client_events').eq('client_id', clientId);
+      if (error) {
+        console.error('Error loading clients:', error);
+        return;
+      }
 
   return data
+  
+} else {
+
+  console.log('пользователь менеджер');
+
+    const { data, error } = await supabase
+     .from('client_events')
+     .select('*')
+     .eq('client_id', clientId)
+
+     return data
 }
+
+
+  }
+
+
+async function loadAllEvents() {
+  try {
+    const { data: userData, error: authError } = await supabase.auth.getUser();
+    if (authError) {
+      console.error('Authentication error:', authError);
+      return [];
+    }
+
+    const { data, error } = await supabase
+      .from('client_events')
+      .select('*');
+
+    if (error) {
+      console.error('Error loading events:', error);
+      return [];
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return [];
+  }
+}
+
+
 
   
   async function startEdit(client) {
@@ -78,8 +141,11 @@
     open = true
 
       // Загрузить события для клиента
-    clientEvents = await loadEventsForClient(client.id)
+     clientEvents = await loadEventsForClient(client.id)
+     console.log('clientEventsыыыыыыыы',clientEvents)
 
+    // clientEvents = await loadAllEvents();
+    // console.log('clientEventsssssss:', clientEvents);
 
   }
   
