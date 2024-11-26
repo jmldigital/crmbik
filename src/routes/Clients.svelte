@@ -3,17 +3,27 @@
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase'
   import AddClientModal from './AddClientModal.svelte';
+  import AddClientEventsModal from './AddClientEventsModal.svelte';
 
   import { Select, SelectItem,TextInput,Button,Link,DataTable,Modal,Tag, Form } from "carbon-components-svelte";
   import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
 
   let open = false;
   let openAdd = false;
+  let openAddEvent = false;
   
   let clients = []
 
-    // Загрузить события для клиента
-    let  clientEvents = []
+  // Загрузить события для клиента
+  let clientEvents = []
+
+
+  let newClientEvent = {
+      event_type: '',
+      created_at: '',
+      description: '',
+      status:''
+    }
 
 
   let newClient = {
@@ -24,6 +34,8 @@
     email: '',
     status: 'Новый'
   }
+
+
   let isEditing = false
   let editingClient = null
   
@@ -79,6 +91,7 @@ let is_Admin = false
 }
 
 
+
   async function loadEventsForClient(clientId) {
 
 if (is_Admin) {
@@ -89,8 +102,8 @@ if (is_Admin) {
         console.error('Error loading clients:', error);
         return;
       }
-
-  return data
+      clientEvents = data;
+  return clientEvents; 
   
 } else {
 
@@ -100,37 +113,12 @@ if (is_Admin) {
      .from('client_events')
      .select('*')
      .eq('client_id', clientId)
-
-     return data
+     clientEvents = data;
+     return clientEvents; 
 }
 
 
   }
-
-
-async function loadAllEvents() {
-  try {
-    const { data: userData, error: authError } = await supabase.auth.getUser();
-    if (authError) {
-      console.error('Authentication error:', authError);
-      return [];
-    }
-
-    const { data, error } = await supabase
-      .from('client_events')
-      .select('*');
-
-    if (error) {
-      console.error('Error loading events:', error);
-      return [];
-    }
-
-    return data;
-  } catch (error) {
-    console.error('Unexpected error:', error);
-    return [];
-  }
-}
 
 
 
@@ -142,7 +130,7 @@ async function loadAllEvents() {
 
       // Загрузить события для клиента
      clientEvents = await loadEventsForClient(client.id)
-     console.log('clientEventsыыыыыыыы',clientEvents)
+     console.log('имя редактируемого клиента',editingClient.first_name)
 
     // clientEvents = await loadAllEvents();
     // console.log('clientEventsssssss:', clientEvents);
@@ -191,7 +179,16 @@ async function loadAllEvents() {
     openAdd = true;
   }
 
-  
+
+  function openAddEventModal() {
+    openAddEvent = true;
+    openAdd = false;
+
+    isEditing=true;
+    console.log('id редактируемог оклиента ',editingClient.id)
+  }
+
+
 </script>
 
 
@@ -214,6 +211,17 @@ on:click={openAddModal}
 />
 
 <!--  -->
+
+
+<AddClientEventsModal
+  bind:open={openAddEvent}
+  bind:client_events={clientEvents}
+  bind:newClientEvent={newClientEvent}
+  bind:editingClientForEvents={editingClient}
+/>
+
+<!--  -->
+
 
 
 
@@ -269,7 +277,7 @@ on:click={openAddModal}
   on:close
   on:submit={saveEdit}
 >
-
+   {console.log('editingClient внутри модалки',editingClient)}
 
     <TextInput 
       type="text" 
@@ -293,7 +301,7 @@ on:click={openAddModal}
     />
     <Select 
     bind:selected={editingClient.status}
-    on:change={(e) => editingClient.status = e.target.value}
+    on:change={(e) => editingClient.status = e.target}
     >
     <SelectItem value="Новый" text="Новый" />
     <SelectItem value="В работе" text="В работе" />
@@ -311,7 +319,22 @@ on:click={openAddModal}
     <!-- Отображение событий -->
 
     <h3>События</h3>
-    {#if clientEvents.length > 0}
+
+    <DataTable
+    headers={[
+      { key: 'event_type', value: 'Тип события' },
+      { key: 'created_at', value: 'Дата события' },
+      { key: 'description', value: 'Описание события' },
+      { key: 'status', value: 'Статус события' },
+      { key: 'actions', value: 'Действия' }
+    ]}
+    
+    rows={clientEvents}
+    >
+
+
+    </DataTable>
+    <!-- {#if clientEvents.length > 0}
       <ul>
         {#each clientEvents as event}
           <li>{event.event_type} - {event.event_date}</li>
@@ -319,7 +342,18 @@ on:click={openAddModal}
       </ul>
     {:else}
       <p>Нет событий для этого клиента.</p>
-    {/if}
+    {/if} -->
+
+
+        <!-- Добавление нового события клиента -->
+
+        <Button
+        kind="ghost"
+        icon={Edit16}
+        on:click={openAddEventModal}
+        >
+        Добавить событие клиента {editingClient.id}
+        </Button>
 
   </Modal>
 

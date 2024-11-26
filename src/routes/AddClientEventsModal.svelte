@@ -3,18 +3,15 @@
     import { supabase } from '../lib/supabase'
   
     export let open = false;
-    export let clients = [];
-    export let newClient = {
-      first_name: '',
-      last_name: '',
-      phone: '',
-      source: '',
-      email: '',
-      status: 'Новый'
+    export let client_events = [];
+    export let newClientEvent = {
+      event_type: '',
+      description: '',
+      status:''
     };
 
    
-
+    export let editingClientForEvents = null
 
   
     function handleSubmit(e) {
@@ -22,34 +19,37 @@
       const form = e.target;
       console.log('Form:', form);
       if (form && form.checkValidity()) {
-        addClient();
+        addClientEvent(editingClientForEvents);
       } else {
         alert('Пожалуйста, заполните все обязательные поля');
       }
     }
   
-    async function addClient() {
+    async function addClientEvent(client) {
+
+    editingClientForEvents = {...client}
+
       try {
         const { data: userData } = await supabase.auth.getUser();
         const { data, error: addError } = await supabase
-          .from('clients')
-          .insert([{ ...newClient, manager_id: userData.user.id }])
+          .from('client_events')
+          .insert([{ client_id:editingClientForEvents.id,...newClientEvent, manager_id: userData.user.id }])
           .select();
-  
+
+        console.log('редактируем клиента с id - ',editingClientForEvents.id)
+        console.log('новое событие для клиента - ',newClientEvent)
+
         if (addError) throw addError;
   
-        clients = [data[0], ...clients];
+        client_events= [data[0], ...client_events];
   
-        newClient = {
-          first_name: '',
-          last_name: '',
-          phone: '',
-          source: '',
-          email: '',
-          status: 'Новый'
+        newClientEvent = {
+            event_type: '',
+            description: '',
+            status:''
         };
   
-        alert('Клиент успешно добавлен');
+        alert('Клиента событие успешно добавлено');
         open = false;
   
       } catch (err) {
@@ -61,7 +61,7 @@
   <Modal
     passiveModal
     bind:open={open}
-    modalHeading="Добавить клиента"
+    modalHeading="Добавить событие клиента"
     primaryButtonText="Добавить"
     secondaryButtonText="Отменить"
     on:click:button--secondary={() => (open = false)}
@@ -70,45 +70,33 @@
     on:close
     on:submit={handleSubmit}
   >
+
+  <!-- {editingClientForEvents.id} -->
+
+  <!-- {console.log('editingClient внутри модалки события',editingClientForEvents)} -->
     <!-- Форма добавления нового клиента -->
     <Form id='my-form' on:submit={handleSubmit}>
       <TextInput
         type="text"
-        placeholder="Имя"
-        bind:value={newClient.first_name}
+        placeholder="Тип события"
+        bind:value={newClientEvent.event_type}
         required
       />
       <TextInput
         type="text"
-        placeholder="Фамилия"
-        bind:value={newClient.last_name}
+        placeholder="Описание события"
+        bind:value={newClientEvent.description}
       />
-      <TextInput
-        type="tel"
-        placeholder="Телефон"
-        bind:value={newClient.phone}
-        required
-      />
-      <TextInput
-        type="text"
-        placeholder="Источник"
-        bind:value={newClient.source}
-        required
-      />
-      <TextInput
-        type="email"
-        placeholder="Email"
-        bind:value={newClient.email}
-      />
+ 
 
       <Select
-        bind:selected={newClient.status}
+        bind:selected={newClientEvent.status}
       >
         <SelectItem value="Новый" text="Новый" />
         <SelectItem value="В работе" text="В работе" />
         <SelectItem value="Завершен" text="Завершен" />
       </Select>
-      <Button type="submit">Добавить клиента</Button>
+      <Button type="submit">Добавить событие клиента</Button>
     </Form>
   </Modal>
   
