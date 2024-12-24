@@ -5,12 +5,15 @@
   import AddClientModal from './AddClientModal.svelte';
   import AddClientEventsModal from './AddClientEventsModal.svelte';
 
+  import Header from './Header.svelte';
+
   import { Select, SelectItem,TextInput,Button,Link,DataTable,Modal,Tag, Form } from "carbon-components-svelte";
   import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
 
   let open = false;
   let openAdd = false;
   let openAddEvent = false;
+  let User = 'Unown';
   
   let clients = []
 
@@ -20,7 +23,6 @@
 
   let newClientEvent = {
       event_type: '',
-      created_at: '',
       description: '',
       status:''
     }
@@ -53,6 +55,7 @@ let is_Admin = false
   
   // Функция загрузки клиентов
   async function loadClients() {
+    
   try {
     const { data: userData, error: authError } = await supabase.auth.getUser();
     if (authError) {
@@ -63,7 +66,9 @@ let is_Admin = false
     let query = supabase.from('clients').select('*');
 
     if (isAdmin(userData.user)) {
-      console.log('пользователь admin');
+            User = "Admin"
+      console.log(User,'пользователь admin');
+
       is_Admin = true;
       // Загрузка всех клиентов для администратора
       const { data, error } = await supabase.rpc('get_all_clients');
@@ -73,7 +78,9 @@ let is_Admin = false
       }
       clients = data;
     } else {
-      console.log('пользователь менеджер');
+            User = "Менеджер"
+      console.log(User,'пользователь менеджер');
+
       // Загрузка клиентов только для текущего менеджера
       query = query.eq('manager_id', userData.user.id);
       const { data, error } = await query;
@@ -184,14 +191,14 @@ if (is_Admin) {
     openAddEvent = true;
     openAdd = false;
 
-    isEditing=true;
+    isEditing=false;
     console.log('id редактируемог оклиента ',editingClient.id)
   }
 
 
 </script>
 
-
+<Header UserStatus={User}></Header>
 
 <!-- Добавление нового клиента -->
 
@@ -277,7 +284,7 @@ on:click={openAddModal}
   on:close
   on:submit={saveEdit}
 >
-   {console.log('editingClient внутри модалки',editingClient)}
+   {console.log('editingClient внутри модалки редактированяи',editingClient)}
 
     <TextInput 
       type="text" 
@@ -301,7 +308,7 @@ on:click={openAddModal}
     />
     <Select 
     bind:selected={editingClient.status}
-    on:change={(e) => editingClient.status = e.target}
+    
     >
     <SelectItem value="Новый" text="Новый" />
     <SelectItem value="В работе" text="В работе" />
