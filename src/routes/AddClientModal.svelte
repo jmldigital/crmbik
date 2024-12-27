@@ -5,12 +5,13 @@
     export let open = false;
     export let clients = [];
     export let newClient = {
-      first_name: '',
-      last_name: '',
-      phone: '',
-      source: '',
-      email: '',
-      status: 'Новый'
+      // first_name: '',
+      // last_name: '',
+      // object: '',
+      // phone: '',
+      // source: '',
+      // email: '',
+      // status: 'Новый'
     };
 
    
@@ -20,6 +21,8 @@
     function handleSubmit(e) {
       e.preventDefault();
       const form = e.target;
+
+
       console.log('Form:', form);
       if (form && form.checkValidity()) {
         addClient();
@@ -31,18 +34,36 @@
     async function addClient() {
       try {
         const { data: userData } = await supabase.auth.getUser();
-        const { data, error: addError } = await supabase
-          .from('clients')
-          .insert([{ ...newClient, manager_id: userData.user.id }])
-          .select();
-  
-        if (addError) throw addError;
+        const userId = userData.user.id;
+
+      // Получаем данные менеджера по user_id
+      const { data: managerData, error: managerError } = await supabase
+        .from('managers')
+        .select('manager_first_name, manager_last_name')
+        .eq('id', userId)
+        .single();
+
+      if (managerError) throw managerError;
+
+      // Добавляем клиента с данными менеджера
+      const { data, error: addError } = await supabase
+        .from('clients')
+        .insert([{
+          ...newClient,
+          manager_id: userId,
+          // manager_first_name: managerData.first_name,
+          // manager_last_name: managerData.last_name
+        }])
+        .select();
+
+      if (addError) throw addError;
   
         clients = [data[0], ...clients];
   
         newClient = {
           first_name: '',
           last_name: '',
+          object: '',
           phone: '',
           source: '',
           email: '',
@@ -56,6 +77,18 @@
         alert(err.message);
       }
     }
+
+    function handleSelectChange(event) {
+      newClient.object = event.target.value;
+      
+    }
+
+    function handleSelectSource(event) {
+      newClient.source = event.target.value;
+      
+    }
+
+
   </script>
   
   <Modal
@@ -83,18 +116,30 @@
         placeholder="Фамилия"
         bind:value={newClient.last_name}
       />
+
+
+      <Select on:change={handleSelectSource}>
+        <SelectItem value="Telegram" text="Telegram" />
+        <SelectItem value="VK" text="VK" />
+        <SelectItem value="Наружка" text="Наружка" />
+        <SelectItem value="Шел мимо" text="Шел мимо" />
+      </Select>
+
+    
+      <Select on:change={handleSelectChange}>
+        <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
+        <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
+        <SelectItem value="БИК TOWER" text="БИК TOWER" />
+      </Select>
+    
+
       <TextInput
         type="tel"
         placeholder="Телефон"
         bind:value={newClient.phone}
         required
       />
-      <TextInput
-        type="text"
-        placeholder="Источник"
-        bind:value={newClient.source}
-        required
-      />
+
       <TextInput
         type="email"
         placeholder="Email"
@@ -108,6 +153,7 @@
         <SelectItem value="В работе" text="В работе" />
         <SelectItem value="Завершен" text="Завершен" />
       </Select>
+
       <Button type="submit">Добавить клиента</Button>
     </Form>
   </Modal>

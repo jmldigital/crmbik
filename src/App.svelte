@@ -1,8 +1,9 @@
 <script>
   import { Router, Link, Route } from "svelte-routing";
-  import Login from "./routes/Login.svelte";
+  import Register from "./routes/Register.svelte";
   import Clients from "./routes/Clients.svelte";
   import '../src/carbon.scss';
+  import Login from "./routes/Login.svelte";
 
   console.log('App.svelte: Component initialized');
   
@@ -14,5 +15,7 @@
   <main>
     <Route path="/" component={Login} />
     <Route path="/clients" component={Clients} />
+    <Route path="/register" component={Register} />
+    <Route path="/login" component={Login} />
   </main>
 </Router>

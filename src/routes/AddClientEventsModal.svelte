@@ -5,9 +5,9 @@
     export let open = false;
     export let client_events = [];
     export let newClientEvent = {
-      event_type: '',
-      description: '',
-      status:''
+      
+      // description: '',
+      // status:''
     };
 
    
@@ -44,7 +44,7 @@
         client_events= [data[0], ...client_events];
   
         newClientEvent = {
-            event_type: '',
+            
             description: '',
             status:''
         };
@@ -76,12 +76,7 @@
   <!-- {console.log('editingClient внутри модалки события',editingClientForEvents)} -->
     <!-- Форма добавления нового клиента -->
     <Form id='my-form' on:submit={handleSubmit}>
-      <TextInput
-        type="text"
-        placeholder="Тип события"
-        bind:value={newClientEvent.event_type}
-        required
-      />
+  
       <TextInput
         type="text"
         placeholder="Описание события"
@@ -92,9 +87,9 @@
       <Select
         bind:selected={newClientEvent.status}
       >
-        <SelectItem value="Новый" text="Новый" />
-        <SelectItem value="В работе" text="В работе" />
-        <SelectItem value="Завершен" text="Завершен" />
+        <SelectItem value="Беседа" text="Беседа" />
+        <SelectItem value="Встреча" text="Встреча" />
+        <SelectItem value="Звонок" text="Звонок" />
       </Select>
       <Button type="submit">Добавить событие клиента</Button>
     </Form>

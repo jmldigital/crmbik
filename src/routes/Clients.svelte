@@ -2,13 +2,17 @@
 <script>
   import { onMount } from 'svelte'
   import { supabase } from '../lib/supabase'
+
   import AddClientModal from './AddClientModal.svelte';
   import AddClientEventsModal from './AddClientEventsModal.svelte';
+  import ClientTable from './ClientTable.svelte';
+  import EditClientModal from './EditClientModal.svelte';
 
   import Header from './Header.svelte';
 
   import { Select, SelectItem,TextInput,Button,Link,DataTable,Modal,Tag, Form } from "carbon-components-svelte";
   import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
+  import Add from "carbon-icons-svelte/lib/Add.svelte";
 
   let open = false;
   let openAdd = false;
@@ -22,19 +26,20 @@
 
 
   let newClientEvent = {
-      event_type: '',
-      description: '',
-      status:''
+      // event_type: '',
+      // description: '',
+      // status:''
     }
 
 
   let newClient = {
-    first_name: '',
-    last_name: '',
-    phone: '',
-    source: '',
-    email: '',
-    status: 'Новый'
+    // first_name: '',
+    // last_name: '',
+    // object:'',
+    // phone: '',
+    // source: '',
+    // email: '',
+    // status: 'Новый'
   }
 
 
@@ -51,8 +56,28 @@
   function isAdmin(user) {
    return user?.app_metadata?.role === 'admin';
 }
+
+// Получаем имя и фамилию менеджера для клиента
+async function getManagerEmail(managerId) {
+  const { data, error } = await supabase
+    .from('managers')
+    .select('manager_first_name, manager_last_name')
+    .eq('id', managerId)
+    .single();
+
+  if (error) {
+    console.error('Error fetching manager name:', error);
+    return null;
+  }
+
+  // Объединяем имя и фамилию в одну строку
+  return `${data.manager_first_name} ${data.manager_last_name}`;
+}
+
+
 let is_Admin = false
   
+
   // Функция загрузки клиентов
   async function loadClients() {
     
@@ -67,8 +92,7 @@ let is_Admin = false
 
     if (isAdmin(userData.user)) {
             User = "Admin"
-      console.log(User,'пользователь admin');
-
+      
       is_Admin = true;
       // Загрузка всех клиентов для администратора
       const { data, error } = await supabase.rpc('get_all_clients');
@@ -77,9 +101,15 @@ let is_Admin = false
         return;
       }
       clients = data;
+
+          // Добавление email менеджеров к каждому клиенту
+    clients = await Promise.all(clients.map(async (client) => {
+      const managerName = await getManagerEmail(client.manager_id);
+      return { ...client, Manager: managerName };
+    }));
+      
     } else {
             User = "Менеджер"
-      console.log(User,'пользователь менеджер');
 
       // Загрузка клиентов только для текущего менеджера
       query = query.eq('manager_id', userData.user.id);
@@ -91,6 +121,10 @@ let is_Admin = false
       clients = data;
     }
 
+    console.log('clients', clients);
+
+
+
     console.log('Clients loaded:', clients);
   } catch (error) {
     console.error('Unexpected error:', error);
@@ -98,34 +132,58 @@ let is_Admin = false
 }
 
 
+// Функция для преобразования даты в понятный для человека формат
+function formatDateToHumanReadable(isoDate) {
+  const date = new Date(isoDate);
+
+  // Форматируем дату в виде YYYY-MM-DD
+  const year = date.getUTCFullYear();
+  const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
+  const day = String(date.getUTCDate()).padStart(2, '0');
+
+  // Форматируем время в виде HH:MM:SS
+  const hours = String(date.getUTCHours()).padStart(2, '0');
+  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
+
+  // Возвращаем отформатированную дату и время
+  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
+}
+
+
 
   async function loadEventsForClient(clientId) {
 
 if (is_Admin) {
-  console.log('пользователь admin');
+ 
       // Загрузка всех клиентов для администратора
   const { data, error } = await supabase.rpc('get_all_client_events').eq('client_id', clientId);
       if (error) {
         console.error('Error loading clients:', error);
         return;
       }
-      clientEvents = data;
-  return clientEvents; 
+      clientEvents = data.map(event => ({
+      ...event,
+      created_at: formatDateToHumanReadable(event.created_at)
+    }));
   
 } else {
-
-  console.log('пользователь менеджер');
-
     const { data, error } = await supabase
-     .from('client_events')
-     .select('*')
-     .eq('client_id', clientId)
-     clientEvents = data;
-     return clientEvents; 
-}
-
-
+      .from('client_events')
+      .select('*')
+      .eq('client_id', clientId);
+    if (error) {
+      console.error('Error loading client events:', error);
+      return;
+    }
+    clientEvents = data.map(event => ({
+      ...event,
+      created_at: formatDateToHumanReadable(event.created_at)
+    }));
   }
+
+  return clientEvents;
+}
 
 
 
@@ -168,20 +226,6 @@ if (is_Admin) {
 
  
 
-  function getTagType(status) {
-    switch (status) {
-      case 'Новый':
-        return 'green';
-      case 'В работе':
-        return 'blue';
-      case 'Завершен':
-        return 'red';
-      default:
-        return 'gray';
-    }
-  }
-
-
   function openAddModal() {
     openAdd = true;
   }
@@ -192,7 +236,7 @@ if (is_Admin) {
     openAdd = false;
 
     isEditing=false;
-    console.log('id редактируемог оклиента ',editingClient.id)
+    // console.log('id редактируемог оклиента ',editingClient.id)
   }
 
 
@@ -201,15 +245,8 @@ if (is_Admin) {
 <Header UserStatus={User}></Header>
 
 <!-- Добавление нового клиента -->
-
-<Button
-kind="ghost"
-icon={Edit16}
-on:click={openAddModal}
->
-Добавить клиента
-</Button>
-
+<!-- <Button icon={Add} on:click={openAddModal} > -->
+  <Button size="field" kind="ghost" >Добавить клиента</Button> <Button size="field" iconDescription="Tooltip text" icon={Add} on:click={openAddModal} />
 
 <AddClientModal
   bind:open={openAdd}
@@ -230,139 +267,26 @@ on:click={openAddModal}
 <!--  -->
 
 
+<ClientTable
+  bind:clients={clients}
+  startEdit={startEdit}
+  Admin={is_Admin}
+/>
 
-
-  <DataTable
-  headers={[
-    { key: 'first_name', value: 'Имя' },
-    { key: 'last_name', value: 'Фамилия' },
-    { key: 'phone', value: 'Телефон' },
-    { key: 'source', value: 'Источник' },
-    { key: 'email', value: 'Email' },
-    { key: 'status', value: 'Статус' },
-    { key: 'actions', value: 'Действия' },
-  ]}
-  
-  rows={clients}
-  >
-
-   <svelte:fragment slot="cell" let:row let:cell>
-    {#if cell.key === 'actions'}
-      <Button
-        kind="ghost"
-        icon={Edit16}
-        on:click={() => startEdit(row)}
-      >
-        Редактировать
-      </Button>
-    {:else if cell.key === 'status'}
-    <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
-    {:else}
-      {cell.value}
-    {/if}
-
-   
-
-  </svelte:fragment>
-
-
-</DataTable>
 
 
 <!-- Модальное окно редактирования -->
 {#if isEditing} 
 
 
-
-<Modal
-  bind:open
-  modalHeading="Редактировать клиента"
-  primaryButtonText="Сохранить"
-  secondaryButtonText="Отменить"
-  on:click:button--secondary={stopEdit}
-  on:open
-  on:close
-  on:submit={saveEdit}
->
-   {console.log('editingClient внутри модалки редактированяи',editingClient)}
-
-    <TextInput 
-      type="text" 
-      bind:value={editingClient.first_name}
-    />
-    <TextInput 
-      type="text" 
-      bind:value={editingClient.last_name}
-    />
-    <TextInput 
-      type="tel" 
-      bind:value={editingClient.phone}
-    />
-    <TextInput 
-      type="text" 
-      bind:value={editingClient.source}
-    />
-    <TextInput
-      type="email" 
-      bind:value={editingClient.email}
-    />
-    <Select 
-    bind:selected={editingClient.status}
-    
-    >
-    <SelectItem value="Новый" text="Новый" />
-    <SelectItem value="В работе" text="В работе" />
-    <SelectItem value="Завершен" text="Завершен" />
-    </Select>
-    
-    <!-- bind:value={editingClient.status} -->
-
-
-      <!-- <Button onclick={saveEdit}>Сохранить</Button>
-      <Button onclick={() => {
-        isEditing = false
-        editingClient = null
-      }}>Отмена</Button> -->
-    <!-- Отображение событий -->
-
-    <h3>События</h3>
-
-    <DataTable
-    headers={[
-      { key: 'event_type', value: 'Тип события' },
-      { key: 'created_at', value: 'Дата события' },
-      { key: 'description', value: 'Описание события' },
-      { key: 'status', value: 'Статус события' },
-      { key: 'actions', value: 'Действия' }
-    ]}
-    
-    rows={clientEvents}
-    >
-
-
-    </DataTable>
-    <!-- {#if clientEvents.length > 0}
-      <ul>
-        {#each clientEvents as event}
-          <li>{event.event_type} - {event.event_date}</li>
-        {/each}
-      </ul>
-    {:else}
-      <p>Нет событий для этого клиента.</p>
-    {/if} -->
-
-
-        <!-- Добавление нового события клиента -->
-
-        <Button
-        kind="ghost"
-        icon={Edit16}
-        on:click={openAddEventModal}
-        >
-        Добавить событие клиента {editingClient.id}
-        </Button>
-
-  </Modal>
+<EditClientModal
+bind:open={open}
+bind:editingClient={editingClient}
+bind:clientEvents={clientEvents}
+saveEdit={saveEdit}
+stopEdit={stopEdit}
+openAddEventModal={openAddEventModal}
+/>
 
 
   {/if} 

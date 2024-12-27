@@ -17,6 +17,7 @@
      } from "carbon-components-svelte";
 
      import Logout from "carbon-icons-svelte/lib/Logout.svelte";
+     import { navigate } from "svelte-routing";
 
   import UserAvatarFilledAlt from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
 
@@ -28,6 +29,20 @@
     // export let User = 'unnown';
 
     let isSideNavOpen = false;
+
+
+  // Функция для выхода из системы
+  async function handleLogout() {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error('Error signing out:', error);
+    } else {
+      // Перенаправляем пользователя на главную страницу после выхода
+      navigate('/');
+    }
+  }
+
+
 </script>
 
 <Header company="БИК>" platformName="CRM" bind:isSideNavOpen>
@@ -61,7 +76,7 @@
       iconDescription="Log out"
       tooltipAlignment="end"
       icon={Logout}
-      href="/"
+      on:click={handleLogout}
     />
   </HeaderUtilities>
 
@@ -71,7 +86,7 @@
   <Grid>
     <Row>
       <Column>
-        <h1>Welcome</h1>
+        <h2>Мои клиенты</h2>
       </Column>
     </Row>
   </Grid>
