@@ -33,7 +33,7 @@
         const { data: userData } = await supabase.auth.getUser();
         const { data, error: addError } = await supabase
           .from('client_events')
-          .insert([{ client_id:editingClientForEvents.id,...newClientEvent, manager_id: userData.user.id }])
+          .insert([{ client_id:editingClientForEvents.id,...newClientEvent, manager_id: editingClientForEvents.manager_id }])
           .select();
 
         console.log('редактируем клиента с id - ',editingClientForEvents.id)

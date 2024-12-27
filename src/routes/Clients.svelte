@@ -33,13 +33,7 @@
 
 
   let newClient = {
-    // first_name: '',
-    // last_name: '',
-    // object:'',
-    // phone: '',
-    // source: '',
-    // email: '',
-    // status: 'Новый'
+
   }
 
 
@@ -52,10 +46,6 @@
     // await loadAllEvents();
   })
 
-
-  function isAdmin(user) {
-   return user?.app_metadata?.role === 'admin';
-}
 
 // Получаем имя и фамилию менеджера для клиента
 async function getManagerEmail(managerId) {
@@ -75,41 +65,67 @@ async function getManagerEmail(managerId) {
 }
 
 
+async function isAdmin(user) {
+  const { data, error } = await supabase.rpc('is_admin');
+  if (error) {
+    console.error('Error checking admin role:', error);
+    return false;
+  }
+  return data;
+}
+
+
+
 let is_Admin = false
   
 
-  // Функция загрузки клиентов
-  async function loadClients() {
-    
+// Функция загрузки клиентов
+async function loadClients() {
   try {
+    console.log('Starting to load clients');
+    
+    // Получение текущего пользователя
     const { data: userData, error: authError } = await supabase.auth.getUser();
     if (authError) {
       console.error('Authentication error:', authError);
       return;
     }
 
+    if (!userData) {
+      console.error('No user data found.');
+      return;
+    }
+
+    console.log('User data:', userData);
+
     let query = supabase.from('clients').select('*');
 
     if (isAdmin(userData.user)) {
-            User = "Admin"
-      
+      User = "Admin";
       is_Admin = true;
+      console.log('User is admin');
+
       // Загрузка всех клиентов для администратора
-      const { data, error } = await supabase.rpc('get_all_clients');
+      const { data, error } = await query;
       if (error) {
-        console.error('Error loading clients:', error);
+        console.error('Ошибка получения данных из таблицы clients:', error);
         return;
       }
       clients = data;
 
-          // Добавление email менеджеров к каждому клиенту
-    clients = await Promise.all(clients.map(async (client) => {
-      const managerName = await getManagerEmail(client.manager_id);
-      return { ...client, Manager: managerName };
-    }));
-      
+      console.log('Loaded clients:', clients);
+
+      // Добавление email менеджеров к каждому клиенту
+      clients = await Promise.all(clients.map(async (client) => {
+        const managerEmail = await getManagerEmail(client.manager_id);
+        return { ...client, Manager: managerEmail };
+      }));
+
+      console.log('Clients with manager emails:', clients);
+
     } else {
-            User = "Менеджер"
+      User = "Менеджер";
+      console.log('User is not admin');
 
       // Загрузка клиентов только для текущего менеджера
       query = query.eq('manager_id', userData.user.id);
@@ -121,15 +137,14 @@ let is_Admin = false
       clients = data;
     }
 
-    console.log('clients', clients);
-
-
-
-    console.log('Clients loaded:', clients);
+    console.log('Final clients data:', clients);
   } catch (error) {
     console.error('Unexpected error:', error);
   }
 }
+
+
+
 
 
 // Функция для преобразования даты в понятный для человека формат
@@ -152,20 +167,28 @@ function formatDateToHumanReadable(isoDate) {
 
 
 
-  async function loadEventsForClient(clientId) {
+async function loadEventsForClient(clientId) {
 
 if (is_Admin) {
- 
-      // Загрузка всех клиентов для администратора
-  const { data, error } = await supabase.rpc('get_all_client_events').eq('client_id', clientId);
+
+
+
+        // Загрузка всех клиентов для администратора
+        const { data, error } = await supabase
+        .from('client_events')
+        .select('*')
+        .eq('client_id', clientId);
+
       if (error) {
-        console.error('Error loading clients:', error);
+        console.error('Ошибка получения данных из таблицы clients_events:', error);
         return;
       }
       clientEvents = data.map(event => ({
       ...event,
       created_at: formatDateToHumanReadable(event.created_at)
     }));
+
+ 
   
 } else {
     const { data, error } = await supabase
@@ -203,20 +226,33 @@ if (is_Admin) {
   }
   
   async function saveEdit() {
-    const { error } = await supabase
-      .from('clients')
-      .update(editingClient)
-      .eq('id', editingClient.id)
-    
-    if (error) {
-      console.error('Error:', error)
-      return
-    }
-    
-    isEditing = false
-    editingClient = null
-    await loadClients()
+  // Создаем объект с полями, которые нужно обновить
+  const clientToUpdate = {
+    // Укажите только те поля, которые нужно обновить
+    first_name: editingClient.first_name,
+    last_name: editingClient.last_name,
+    object: editingClient.object,
+    phone: editingClient.phone,
+    source: editingClient.source,
+    email: editingClient.email,
+    status: editingClient.status,
+    // Добавьте другие поля, которые нужно обновить
+  };
+
+  const { error } = await supabase
+    .from('clients')
+    .update(clientToUpdate)
+    .eq('id', editingClient.id);
+
+  if (error) {
+    console.error('Error:', error);
+    return;
   }
+
+  isEditing = false;
+  editingClient = null;
+  await loadClients();
+}
 
   function stopEdit() {
     isEditing = false

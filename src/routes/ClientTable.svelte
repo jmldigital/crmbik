@@ -17,7 +17,8 @@
         { key: 'source', value: 'Источник' },
         { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
-        { key: 'actions', value: 'Действия' },
+        { key: 'Touches', value: 'Касания' },
+        { key: 'actions', value: 'Действия' }
       ]
     : [
         { key: 'first_name', value: 'Имя' },
@@ -27,6 +28,7 @@
         { key: 'source', value: 'Источник' },
         { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
+        { key: 'Touches', value: 'Касания' },
         { key: 'actions', value: 'Действия' },
       ];
 

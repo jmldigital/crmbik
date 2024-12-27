@@ -1,6 +1,7 @@
 <script>
   import { Modal, TextInput, Select, SelectItem, DataTable, Button, Tag } from 'carbon-components-svelte';
-  import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
+  import Add from 'carbon-icons-svelte/lib/Add.svelte';
+  import { Grid, Row, Column } from "carbon-components-svelte";
 
   export let open = false;
   export let editingClient = null;
@@ -21,6 +22,10 @@
         return 'gray';
     }
   }
+  
+  // let selected = editingClient.source;
+  let selected = editingClient.object;
+  let selectedValue = editingClient.source;
 
   function handleSelectChange(event) {
     editingClient.object = event.target.value;
@@ -45,48 +50,105 @@
   on:close
   on:submit={saveEdit}
 >
-  {console.log('editingClient внутри модалки редактирования', editingClient)}
 
-  <TextInput
-    type="text"
-    bind:value={editingClient.first_name}
-  />
-  <TextInput
-    type="text"
-    bind:value={editingClient.last_name}
-  />
+  { console.log('id менеджера, кому принадлежит клиент', editingClient) }
 
-  <Select on:change={handleSelectChange}>
-    <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
-    <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
-    <SelectItem value="БИК TOWER" text="БИК TOWER" />
-  </Select>
 
-  <TextInput
-    type="tel"
-    bind:value={editingClient.phone}
-  />
+  <Grid fullWidth>
+    <Row>
+      <Column>  <TextInput
+        type="text"
+        bind:value={editingClient.first_name}
+      />
+      </Column>
+      
+      <Column>
+        <TextInput
+        type="text"
+        bind:value={editingClient.last_name}
+      />
+      </Column>
 
-  <Select on:change={handleSelectSource}>
-    <SelectItem value="Telegram" text="Telegram" />
-    <SelectItem value="VK" text="VK" />
-    <SelectItem value="Наружка" text="Наружка" />
-    <SelectItem value="Шел мимо" text="Шел мимо" />
-  </Select>
+      <Column>
 
-  <TextInput
-    type="email"
-    bind:value={editingClient.email}
-  />
-  <Select
-    bind:selected={editingClient.status}
-  >
-    <SelectItem value="Новый" text="Новый" />
-    <SelectItem value="В работе" text="В работе" />
-    <SelectItem value="Завершен" text="Завершен" />
-  </Select>
+        <TextInput
+        type="tel"
+        bind:value={editingClient.phone}
+      />
+      
 
-  <h3>События</h3>
+
+      </Column>
+
+      <Column>
+
+        <TextInput
+        type="email"
+        bind:value={editingClient.email}
+      />
+
+
+      </Column>
+    
+    </Row>
+
+
+  <Row> 
+    <Column>
+    
+      <Select on:change={handleSelectChange}
+      bind:selected
+      >
+        
+        <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
+        <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
+        <SelectItem value="БИК TOWER" text="БИК TOWER" />
+      </Select>
+    </Column>
+
+
+        <Column>
+
+
+        <Select 
+        on:change={handleSelectSource}
+        bind:selected ={selectedValue} 
+        >
+          <SelectItem value="Telegram" text="Telegram" />
+          <SelectItem value="VK" text="VK" />
+          <SelectItem value="Наружка" text="Наружка" />
+          <SelectItem value="Шел мимо" text="Шел мимо" />
+        </Select>
+      </Column>
+    
+    <Column>
+          <Select
+          bind:selected={editingClient.status}
+        >
+          <SelectItem value="Новый" text="Новый" />
+          <SelectItem value="В работе" text="В работе" />
+          <SelectItem value="Завершен" text="Завершен" />
+        </Select>
+      </Column>
+
+     
+
+  </Row>
+
+  </Grid>
+
+  <div style="height:50px;"></div>
+  <Grid narrow>
+    <Row>
+      <Column><h3>События</h3></Column>
+      <Column>
+      <Button size="field"  kind="ghost" on:click={openAddEventModal} >Добавить событие </Button>
+      <Button size="field" iconDescription="Tooltip text" icon={Add} on:click={openAddEventModal} />
+    </Column>
+    </Row>
+  </Grid>
+
+
 
   <DataTable
     headers={[
@@ -99,11 +161,4 @@
   >
   </DataTable>
 
-  <Button
-    kind="ghost"
-    icon={Edit16}
-    on:click={openAddEventModal}
-  >
-    Добавить событие клиента {editingClient.id}
-  </Button>
 </Modal>
