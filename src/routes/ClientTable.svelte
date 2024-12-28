@@ -66,8 +66,7 @@
         { key: 'source', value: 'Источник' },
         { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
-        { key: 'Touches', value: 'Касания' },
-        { key: 'lastEventStatus', value: 'Последнее' },
+
         { key: 'actions', value: 'Действия' }
       ];
 
