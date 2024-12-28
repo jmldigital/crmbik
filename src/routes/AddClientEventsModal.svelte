@@ -1,6 +1,7 @@
 <script>
     import { Select, SelectItem, TextInput, Button, Modal, Form } from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
+
   
     export let open = false;
     export let client_events = [];
@@ -13,6 +14,8 @@
    
     export let editingClientForEvents = null
 
+    // export let onEventAdded;
+    export let onEventAdded = (clientId) => {};
   
     function handleSubmit(e) {
       e.preventDefault();
@@ -51,6 +54,10 @@
   
         alert('Клиента событие успешно добавлено');
         open = false;
+
+
+            // Вызываем callback функцию
+            onEventAdded(editingClientForEvents.id);
   
       } catch (err) {
         alert(err.message);

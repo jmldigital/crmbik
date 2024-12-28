@@ -39,6 +39,7 @@
 
   let isEditing = false
   let editingClient = null
+  let EventsLen = null
   
   
   onMount(async () => {
@@ -65,12 +66,22 @@ async function getManagerEmail(managerId) {
 }
 
 
+
+// Функция для преобразования даты в понятный для человека формат
+function formatDateToHumanReadable(date) {
+  // Пример форматирования даты
+  return new Date(date).toLocaleString();
+}
+
+
+
 async function isAdmin(user) {
   const { data, error } = await supabase.rpc('is_admin');
   if (error) {
     console.error('Error checking admin role:', error);
     return false;
   }
+  console.log('user_is_admin_data',data)
   return data;
 }
 
@@ -100,7 +111,12 @@ async function loadClients() {
 
     let query = supabase.from('clients').select('*');
 
-    if (isAdmin(userData.user)) {
+      // Проверяем роль админа с await
+      const isAdminUser = await isAdmin(userData.user);
+    console.log('isAdminUser check result:', isAdminUser);
+
+    if (isAdminUser) {
+      
       User = "Admin";
       is_Admin = true;
       console.log('User is admin');
@@ -116,10 +132,21 @@ async function loadClients() {
       console.log('Loaded clients:', clients);
 
       // Добавление email менеджеров к каждому клиенту
-      clients = await Promise.all(clients.map(async (client) => {
+      // clients = await Promise.all(clients.map(async (client) => {
+      //   const managerEmail = await getManagerEmail(client.manager_id);
+      //   return { ...client, Manager: managerEmail };
+      // }));
+
+
+
+       // Добавление email менеджеров и подсчет событий для каждого клиента
+       clients = await Promise.all(clients.map(async (client) => {
         const managerEmail = await getManagerEmail(client.manager_id);
-        return { ...client, Manager: managerEmail };
+
+        const { events, count,lastEventStatus } = await loadEventsForClient(client.id)
+        return { ...client, Manager: managerEmail, Touches: count, lastEventStatus:lastEventStatus };
       }));
+
 
       console.log('Clients with manager emails:', clients);
 
@@ -146,69 +173,49 @@ async function loadClients() {
 
 
 
-
-// Функция для преобразования даты в понятный для человека формат
-function formatDateToHumanReadable(isoDate) {
-  const date = new Date(isoDate);
-
-  // Форматируем дату в виде YYYY-MM-DD
-  const year = date.getUTCFullYear();
-  const month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Месяцы начинаются с 0
-  const day = String(date.getUTCDate()).padStart(2, '0');
-
-  // Форматируем время в виде HH:MM:SS
-  const hours = String(date.getUTCHours()).padStart(2, '0');
-  const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-  const seconds = String(date.getUTCSeconds()).padStart(2, '0');
-
-  // Возвращаем отформатированную дату и время
-  return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
-}
-
-
-
 async function loadEventsForClient(clientId) {
-
-if (is_Admin) {
-
-
-
-        // Загрузка всех клиентов для администратора
-        const { data, error } = await supabase
-        .from('client_events')
-        .select('*')
-        .eq('client_id', clientId);
-
-      if (error) {
-        console.error('Ошибка получения данных из таблицы clients_events:', error);
-        return;
-      }
-      clientEvents = data.map(event => ({
-      ...event,
-      created_at: formatDateToHumanReadable(event.created_at)
-    }));
-
- 
-  
-} else {
+  try {
+    // Загрузка всех событий для данного клиента
     const { data, error } = await supabase
       .from('client_events')
       .select('*')
-      .eq('client_id', clientId);
+      .eq('client_id', clientId)
+      .order('created_at', { ascending: false }); // Сортировка по дате создания в порядке убывания
+
     if (error) {
-      console.error('Error loading client events:', error);
-      return;
+      console.error('Ошибка получения данных из таблицы client_events:', error);
+      return { events: [], count: 0, lastEventStatus: null };
     }
-    clientEvents = data.map(event => ({
+
+    // Форматирование даты и подсчет количества событий
+    const clientEvents = data.map(event => ({
       ...event,
       created_at: formatDateToHumanReadable(event.created_at)
     }));
-  }
 
-  return clientEvents;
+    const eventCount = clientEvents.length;
+    const lastEventStatus = clientEvents.length > 0 ? clientEvents[0].status : null;
+
+    console.log("lastEventStatus",lastEventStatus)
+
+    return { events: clientEvents, count: eventCount, lastEventStatus: lastEventStatus };
+
+    
+
+  } catch (error) {
+    console.error('Unexpected error:', error);
+    return { events: [], count: 0, lastEventStatus: null };
+  }
 }
 
 
+  async function updateEventCounter(clientId) {
+
+    await loadClients();
+        // Ваш код для обновления счетчика событий
+        console.log('Updating event counter for client:', clientId);
+        // Здесь добавьте логику обновления счетчика
+    }
 
   
   async function startEdit(client) {
@@ -217,7 +224,8 @@ if (is_Admin) {
     open = true
 
       // Загрузить события для клиента
-     clientEvents = await loadEventsForClient(client.id)
+     const { events, count } = await loadEventsForClient(client.id)
+     clientEvents = events;
      console.log('имя редактируемого клиента',editingClient.first_name)
 
     // clientEvents = await loadAllEvents();
@@ -280,14 +288,12 @@ if (is_Admin) {
 
 <Header UserStatus={User}></Header>
 
-<!-- Добавление нового клиента -->
-<!-- <Button icon={Add} on:click={openAddModal} > -->
-  <Button size="field" kind="ghost" >Добавить клиента</Button> <Button size="field" iconDescription="Tooltip text" icon={Add} on:click={openAddModal} />
 
 <AddClientModal
   bind:open={openAdd}
   bind:clients={clients}
   bind:newClient={newClient}
+  
 />
 
 <!--  -->
@@ -298,6 +304,7 @@ if (is_Admin) {
   bind:client_events={clientEvents}
   bind:newClientEvent={newClientEvent}
   bind:editingClientForEvents={editingClient}
+  onEventAdded={updateEventCounter}
 />
 
 <!--  -->
@@ -307,6 +314,7 @@ if (is_Admin) {
   bind:clients={clients}
   startEdit={startEdit}
   Admin={is_Admin}
+  onButtonClick={openAddModal}
 />
 
 
