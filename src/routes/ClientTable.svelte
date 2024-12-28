@@ -46,16 +46,16 @@
   $: headers = Admin 
     ? [
         { key: 'Manager', value: 'Менеджер' },
-        { key: 'first_name', value: 'Имя' },
+        // { key: 'first_name', value: 'Имя' },
         { key: 'last_name', value: 'Фамилия' },
         { key: 'object', value: 'Объект' },
         { key: 'phone', value: 'Телефон' },
         { key: 'source', value: 'Источник' },
-        { key: 'email', value: 'Email' },
+        // { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
-        { key: 'Touches', value: 'Касания' },
+        { key: 'Touches', value: '', width: "40px" },
         { key: 'lastEventStatus', value: 'Последнее' },
-        { key: 'actions', value: 'Действия' }
+        { key: 'actions', value: '' }
 
       ]
     : [
@@ -64,10 +64,10 @@
         { key: 'object', value: 'Объект' },
         { key: 'phone', value: 'Телефон' },
         { key: 'source', value: 'Источник' },
-        { key: 'email', value: 'Email' },
+        // { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
 
-        { key: 'actions', value: 'Действия' }
+        { key: 'actions', value: '' }
       ];
 
 
@@ -118,7 +118,7 @@ zebra
         icon={Edit16}
         on:click={() => startEdit(row)}
       >
-        Редактировать
+        
       </Button>
     {:else if cell.key === 'status'}
       <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
