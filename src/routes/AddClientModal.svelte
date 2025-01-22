@@ -2,20 +2,24 @@
     import { Select, SelectItem, TextInput, Button, Modal, Form } from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
   
+
+    let SelecedObject = 'БИК TOWER'
+    let SelecedTarget = 'VK'
+
+
     export let open = false;
     export let clients = [];
     export let newClient = {
-      // first_name: '',
-      // last_name: '',
-      // object: '',
-      // phone: '',
-      // source: '',
-      // email: '',
-      // status: 'Новый'
     };
 
-   
+    
 
+   
+  // // Отладочный вывод для проверки инициализации
+  // console.log('newClient',newClient);
+
+  // console.log('Object:', newClient.object);
+  // console.log('Status:', newClient.status);
 
   
     function handleSubmit(e) {
@@ -24,6 +28,7 @@
 
 
       console.log('Form:', form);
+
       if (form && form.checkValidity()) {
         addClient();
       } else {
@@ -44,6 +49,9 @@
         .single();
 
       if (managerError) throw managerError;
+
+      newClient.object = SelecedObject
+      newClient.source = SelecedTarget
 
       // Добавляем клиента с данными менеджера
       const { data, error: addError } = await supabase
@@ -69,7 +77,9 @@
           email: '',
           status: 'Новый'
         };
-  
+
+     
+
         alert('Клиент успешно добавлен');
         open = false;
   
@@ -87,7 +97,9 @@
       newClient.source = event.target.value;
       
     }
+    console.log('newClient.object',newClient.object);
 
+    
 
   </script>
   
@@ -101,8 +113,9 @@
     hasForm
     on:open
     on:close
-    on:submit={handleSubmit}
+   
   >
+
     <!-- Форма добавления нового клиента -->
     <Form id='my-form' on:submit={handleSubmit}>
       <TextInput
@@ -118,7 +131,9 @@
       />
 
 
-      <Select on:change={handleSelectSource}>
+      <Select on:change={handleSelectSource}
+      bind:selected={SelecedTarget}
+      >
         <SelectItem value="Telegram" text="Telegram" />
         <SelectItem value="VK" text="VK" />
         <SelectItem value="Наружка" text="Наружка" />
@@ -126,12 +141,16 @@
       </Select>
 
     
-      <Select on:change={handleSelectChange}>
+      <Select 
+      on:change={handleSelectChange}
+      bind:selected={SelecedObject}
+      
+      >
         <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
         <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
         <SelectItem value="БИК TOWER" text="БИК TOWER" />
       </Select>
-    
+
 
       <TextInput
         type="tel"

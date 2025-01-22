@@ -3,12 +3,15 @@
   import Add from 'carbon-icons-svelte/lib/Add.svelte';
   import { Grid, Row, Column } from "carbon-components-svelte";
 
-  export let open = false;
-  export let editingClient = null;
-  export let clientEvents = [];
+  export let open;
+  export let editingClient;
+  export let clientEvents;
+
   export let saveEdit;
   export let stopEdit;
   export let openAddEventModal;
+
+
 
   function getTagType(status) {
     switch (status) {
@@ -24,8 +27,8 @@
   }
   
   // let selected = editingClient.source;
-  let selected = editingClient.object;
-  let selectedValue = editingClient.source;
+  export let selectedObject = editingClient.object;
+  export let selectedSource = editingClient.source;
 
   function handleSelectChange(event) {
     editingClient.object = event.target.value;
@@ -37,6 +40,9 @@
       
     }
 
+
+ console.log('editingClient.object;',editingClient.object);
+ console.log('editingClient.source;',editingClient.source);
 
 </script>
 
@@ -76,17 +82,13 @@
         bind:value={editingClient.phone}
       />
       
-
-
       </Column>
 
       <Column>
-
         <TextInput
         type="email"
         bind:value={editingClient.email}
       />
-
 
       </Column>
     
@@ -97,7 +99,7 @@
     <Column>
     
       <Select on:change={handleSelectChange}
-      bind:selected
+      bind:selected ={selectedObject}
       >
         
         <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
@@ -112,7 +114,7 @@
 
         <Select 
         on:change={handleSelectSource}
-        bind:selected ={selectedValue} 
+        bind:selected ={selectedSource} 
         >
           <SelectItem value="Telegram" text="Telegram" />
           <SelectItem value="VK" text="VK" />

@@ -38,7 +38,17 @@
 
 
   let isEditing = false
-  let editingClient = null
+
+  let editingClient = {
+    first_name: '',
+    last_name: '',
+    object: '',
+    phone: '',
+    source: '',
+    email: '',
+    status: 'Новый' // дефолтное значение для статуса
+  };
+
   let EventsLen = null
   
   
@@ -228,6 +238,8 @@ async function loadEventsForClient(clientId) {
      clientEvents = events;
      console.log('имя редактируемого клиента',editingClient.first_name)
 
+     console.log('editingClient внутри окна',editingClient.object);
+
     // clientEvents = await loadAllEvents();
     // console.log('clientEventsssssss:', clientEvents);
 
@@ -266,12 +278,14 @@ async function loadEventsForClient(clientId) {
     isEditing = false
     open = false
     editingClient = null
+    console.log('закрываем окно редактирования');
   }
 
  
 
   function openAddModal() {
     openAdd = true;
+    
   }
 
 
@@ -280,10 +294,19 @@ async function loadEventsForClient(clientId) {
     openAdd = false;
 
     isEditing=false;
-    // console.log('id редактируемог оклиента ',editingClient.id)
+    
   }
 
+  $: console.log('editingClient просто',{ editingClient});
 
+
+
+  $: console.log('openAddEventModal status:', {
+    isDefined: !!openAddEventModal,
+    type: typeof openAddEventModal
+  });
+
+  
 </script>
 
 <Header UserStatus={User}></Header>
@@ -320,20 +343,22 @@ async function loadEventsForClient(clientId) {
 
 
 <!-- Модальное окно редактирования -->
+
+
 {#if isEditing} 
-
-
 <EditClientModal
 bind:open={open}
 bind:editingClient={editingClient}
 bind:clientEvents={clientEvents}
+selectedObject = {editingClient.object}
+selectedSource = {editingClient.source}
 saveEdit={saveEdit}
 stopEdit={stopEdit}
-openAddEventModal={openAddEventModal}
+{openAddEventModal}
 />
 
+{/if} 
 
-  {/if} 
 
 
 
