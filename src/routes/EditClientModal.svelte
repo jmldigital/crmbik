@@ -1,7 +1,16 @@
 <script>
-  import { Modal, TextInput, Select, SelectItem, DataTable, Button, Tag } from 'carbon-components-svelte';
-  import Add from 'carbon-icons-svelte/lib/Add.svelte';
+  import {
+    Modal,
+    TextInput,
+    Select,
+    SelectItem,
+    DataTable,
+    Button,
+    Tag,
+  } from "carbon-components-svelte";
+  import Add from "carbon-icons-svelte/lib/Add.svelte";
   import { Grid, Row, Column } from "carbon-components-svelte";
+  import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
 
   export let open;
   export let editingClient;
@@ -11,39 +20,35 @@
   export let stopEdit;
   export let openAddEventModal;
 
-
+  export let startEditEvent;
 
   function getTagType(status) {
     switch (status) {
-      case 'Новый':
-        return 'green';
-      case 'В работе':
-        return 'blue';
-      case 'Завершен':
-        return 'red';
+      case "Новый":
+        return "green";
+      case "В работе":
+        return "blue";
+      case "Завершен":
+        return "red";
       default:
-        return 'gray';
+        return "gray";
     }
   }
-  
+
   // let selected = editingClient.source;
   export let selectedObject = editingClient.object;
   export let selectedSource = editingClient.source;
 
   function handleSelectChange(event) {
     editingClient.object = event.target.value;
-     
-    }
+  }
 
-    function handleSelectSource(event) {
-      editingClient.source = event.target.value;
-      
-    }
+  function handleSelectSource(event) {
+    editingClient.source = event.target.value;
+  }
 
-
- console.log('editingClient.object;',editingClient.object);
- console.log('editingClient.source;',editingClient.source);
-
+  console.log("editingClient.object;", editingClient.object);
+  console.log("editingClient.source;", editingClient.source);
 </script>
 
 <Modal
@@ -56,87 +61,53 @@
   on:close
   on:submit={saveEdit}
 >
-
-  { console.log('id менеджера, кому принадлежит клиент', editingClient) }
-
+  {console.log("id менеджера, кому принадлежит клиент", editingClient)}
 
   <Grid fullWidth>
     <Row>
-      <Column>  <TextInput
-        type="text"
-        bind:value={editingClient.first_name}
-      />
-      </Column>
-      
       <Column>
-        <TextInput
-        type="text"
-        bind:value={editingClient.last_name}
-      />
+        <TextInput type="text" bind:value={editingClient.first_name} />
       </Column>
 
       <Column>
-
-        <TextInput
-        type="tel"
-        bind:value={editingClient.phone}
-      />
-      
+        <TextInput type="text" bind:value={editingClient.last_name} />
       </Column>
 
       <Column>
-        <TextInput
-        type="email"
-        bind:value={editingClient.email}
-      />
-
+        <TextInput type="tel" bind:value={editingClient.phone} />
       </Column>
-    
+
+      <Column>
+        <TextInput type="email" bind:value={editingClient.email} />
+      </Column>
     </Row>
 
+    <Row>
+      <Column>
+        <Select on:change={handleSelectChange} bind:selected={selectedObject}>
+          <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
+          <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
+          <SelectItem value="БИК TOWER" text="БИК TOWER" />
+        </Select>
+      </Column>
 
-  <Row> 
-    <Column>
-    
-      <Select on:change={handleSelectChange}
-      bind:selected ={selectedObject}
-      >
-        
-        <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
-        <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
-        <SelectItem value="БИК TOWER" text="БИК TOWER" />
-      </Select>
-    </Column>
-
-
-        <Column>
-
-
-        <Select 
-        on:change={handleSelectSource}
-        bind:selected ={selectedSource} 
-        >
+      <Column>
+        <Select on:change={handleSelectSource} bind:selected={selectedSource}>
           <SelectItem value="Telegram" text="Telegram" />
           <SelectItem value="VK" text="VK" />
           <SelectItem value="Наружка" text="Наружка" />
           <SelectItem value="Шел мимо" text="Шел мимо" />
         </Select>
       </Column>
-    
-    <Column>
-          <Select
-          bind:selected={editingClient.status}
-        >
+
+      <Column>
+        <Select bind:selected={editingClient.status}>
           <SelectItem value="Новый" text="Новый" />
           <SelectItem value="В работе" text="В работе" />
           <SelectItem value="Завершен" text="Завершен" />
         </Select>
       </Column>
-
-     
-
-  </Row>
-
+    </Row>
   </Grid>
 
   <div style="height:50px;"></div>
@@ -144,23 +115,41 @@
     <Row>
       <Column><h3>События</h3></Column>
       <Column>
-      <Button size="field"  kind="ghost" on:click={openAddEventModal} >Добавить событие </Button>
-      <Button size="field" iconDescription="Tooltip text" icon={Add} on:click={openAddEventModal} />
-    </Column>
+        <Button size="field" kind="ghost" on:click={openAddEventModal}
+          >Добавить событие
+        </Button>
+        <Button
+          size="field"
+          iconDescription="Tooltip text"
+          icon={Add}
+          on:click={openAddEventModal}
+        />
+      </Column>
     </Row>
   </Grid>
 
-
-
   <DataTable
     headers={[
-      { key: 'created_at', value: 'Дата события' },
-      { key: 'description', value: 'Описание события' },
-      { key: 'status', value: 'Статус события' },
-      { key: 'actions', value: 'Действия' }
+      { key: "created_at", value: "Дата события" },
+      { key: "description", value: "Описание события" },
+      { key: "status", value: "Статус события" },
+      { key: "actions", value: "Действия" }
     ]}
     rows={clientEvents}
-  >
-  </DataTable>
+>
+  <svelte:fragment slot="cell" let:row let:cell>
+    {#if cell.key === 'actions'}
+      <Button
+        kind="ghost"
+        iconDescription="Редактировать"
+        icon={Edit16}
+        on:click={() => startEditEvent(row)}
+      />
+    {:else}
+      {row[cell.key]}
+    {/if}
+  </svelte:fragment>
+</DataTable>
+
 
 </Modal>

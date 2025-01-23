@@ -129,10 +129,6 @@ zebra
 </svelte:fragment>
 
 
-
-
-
-
   <Toolbar>
     <ToolbarContent>
       <ToolbarSearch

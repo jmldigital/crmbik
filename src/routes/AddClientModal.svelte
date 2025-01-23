@@ -1,5 +1,5 @@
 <script>
-    import { Select, SelectItem, TextInput, Button, Modal, Form } from "carbon-components-svelte";
+    import { Select, SelectItem, TextInput, Button, Modal, Form, TextArea } from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
   
 
@@ -12,7 +12,8 @@
     export let newClient = {
     };
 
-    
+    let ShowOtherSource = false;
+    let AnotherSourse = '';
 
    
   // // Отладочный вывод для проверки инициализации
@@ -51,7 +52,13 @@
       if (managerError) throw managerError;
 
       newClient.object = SelecedObject
+
+      if (ShowOtherSource) {
+      newClient.source = AnotherSourse
+    }
+    else {
       newClient.source = SelecedTarget
+    }
 
       // Добавляем клиента с данными менеджера
       const { data, error: addError } = await supabase
@@ -94,10 +101,21 @@
     }
 
     function handleSelectSource(event) {
-      newClient.source = event.target.value;
+      
+
+      if (event.target.value == 'Другой источник')
+    {
+      ShowOtherSource = true;
+      newClient.source = AnotherSourse;
+    }
+      else {
+        newClient.source = event.target.value;
+        ShowOtherSource = false;
+      }
       
     }
-    console.log('newClient.object',newClient.object);
+
+   
 
     
 
@@ -138,13 +156,24 @@
         <SelectItem value="VK" text="VK" />
         <SelectItem value="Наружка" text="Наружка" />
         <SelectItem value="Шел мимо" text="Шел мимо" />
+        <SelectItem value="Другой источник" text="Другой источник" />
+
       </Select>
 
-    
+
+      {#if ShowOtherSource}
+      <TextArea
+        light
+        labelText="Иной источник"
+        placeholder="Напишите какой источник привел клиента"
+        bind:value={AnotherSourse}
+      />
+      {/if}
+      
+
       <Select 
       on:change={handleSelectChange}
       bind:selected={SelecedObject}
-      
       >
         <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
         <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
