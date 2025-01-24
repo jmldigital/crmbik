@@ -29,7 +29,14 @@
   let openAddEvent = false;
   let openEditEvent = false;
 
+  let selectedSource = "";
+  let AnotherSourse = "";
+  let ShowOtherSource = false;
+
   let User = "Unown";
+  
+  let isSubmitting = false;
+  let formRef;
 
   let clients = [];
 
@@ -66,9 +73,26 @@
 
   let EventsLen = null;
 
+  const standardSources = ["Telegram", "VK", "Наружка", "Шел мимо"];
+
+  $: {
+    if (isEditing) {
+      if (standardSources.includes(editingClient.source)) {
+        ShowOtherSource = false;
+        selectedSource = editingClient.source;
+        AnotherSourse = "";
+      } else {
+        ShowOtherSource = true;
+        selectedSource = "Другой источник";
+        AnotherSourse = editingClient.source;
+      }
+    }
+  }
+
   onMount(async () => {
     await loadClients();
     // await loadAllEvents();
+    
   });
 
   // Получаем имя и фамилию менеджера для клиента
@@ -100,7 +124,6 @@
       console.error("Error checking admin role:", error);
       return false;
     }
-    console.log("user_is_admin_data", data);
     return data;
   }
 
@@ -124,8 +147,6 @@
         return;
       }
 
-      console.log("User data:", userData);
-
       let query = supabase.from("clients").select("*");
 
       // Проверяем роль админа с await
@@ -135,7 +156,6 @@
       if (isAdminUser) {
         User = "Admin";
         is_Admin = true;
-        console.log("User is admin");
 
         // Загрузка всех клиентов для администратора
         const { data, error } = await query;
@@ -144,14 +164,6 @@
           return;
         }
         clients = data;
-
-        console.log("Loaded clients:", clients);
-
-        // Добавление email менеджеров к каждому клиенту
-        // clients = await Promise.all(clients.map(async (client) => {
-        //   const managerEmail = await getManagerEmail(client.manager_id);
-        //   return { ...client, Manager: managerEmail };
-        // }));
 
         // Добавление email менеджеров и подсчет событий для каждого клиента
         clients = await Promise.all(
@@ -172,8 +184,6 @@
         console.log("Clients with manager emails:", clients);
       } else {
         User = "Менеджер";
-        console.log("User is not admin");
-
         // Загрузка клиентов только для текущего менеджера
         query = query.eq("manager_id", userData.user.id);
         const { data, error } = await query;
@@ -184,7 +194,6 @@
         clients = data;
       }
 
-      console.log("Final clients data:", clients);
     } catch (error) {
       console.error("Unexpected error:", error);
     }
@@ -217,10 +226,6 @@
       const lastEventStatus =
         clientEvents.length > 0 ? clientEvents[0].status : null;
 
-      console.log("всякий раз события клиента", clientEvents);
-     
-      
-      
       return {
         events: clientEvents,
         count: eventCount,
@@ -243,19 +248,39 @@
     isEditing = true;
     editingClient = { ...client };
     open = true;
-
     // Загрузить события для клиента
     const { events, count } = await loadEventsForClient(client.id);
     clientEvents = events;
-    // console.log("имя редактируемого клиента", editingClient.first_name);
 
-    // console.log("editingClient внутри окна", editingClient.object);
+    
 
-    // clientEvents = await loadAllEvents();
-    // console.log('clientEventsssssss:', clientEvents);
   }
 
+
+  // В родительском компоненте
+  async function handleSubmit(e) {
+        e.preventDefault();
+        
+        // Проверяем валидацию через ссылку на форму
+        if (!formRef.validateForm(editingClient)) {
+            return;
+        }
+
+        try {
+            isSubmitting = true;
+            await saveEdit();
+        } finally {
+            isSubmitting = false;
+        }
+    }
+
+
+
   async function saveEdit() {
+
+    const sourceToSave = AnotherSourse || selectedSource;
+
+    try {
     // Создаем объект с полями, которые нужно обновить
     const clientToUpdate = {
       // Укажите только те поля, которые нужно обновить
@@ -263,32 +288,35 @@
       last_name: editingClient.last_name,
       object: editingClient.object,
       phone: editingClient.phone,
-      source: editingClient.source,
+      source: sourceToSave,
       email: editingClient.email,
       status: editingClient.status,
       // Добавьте другие поля, которые нужно обновить
     };
+  
 
     const { error } = await supabase
       .from("clients")
       .update(clientToUpdate)
       .eq("id", editingClient.id);
 
-    if (error) {
-      console.error("Error:", error);
-      return;
-    }
+    if (error) throw error;
 
     isEditing = false;
     editingClient = null;
     await loadClients();
+
+  } catch (error) {
+      alert('Ошибка при сохранении данных');
+      console.error('Error:', error);
+    }
+    
   }
 
   function stopEdit() {
     isEditing = false;
     open = false;
     editingClient = null;
-    console.log("закрываем окно редактирования");
   }
 
   function openAddModal() {
@@ -338,17 +366,14 @@
     // console.log('eventToUpdate after update',eventToUpdate)
     // console.log('editingClient after update',editingClient)
 
-
     openEditEvent = false;
 
-       // Принудительно обновляем события
-       const { events } = await loadEventsForClient(editingClient.id);
-       clientEvents = events; // Это вызовет реактивное обновление
+    // Принудительно обновляем события
+    const { events } = await loadEventsForClient(editingClient.id);
+    clientEvents = events; // Это вызовет реактивное обновление
 
     // Обновляем также основную таблицу клиентов
     await loadClients();
-
-    
   }
 </script>
 
@@ -373,6 +398,7 @@
   bind:selectedDescription
   {closeWindow}
   handleSubmit={handleSubmitEvent}
+  
 />
 
 <ClientTable
@@ -390,10 +416,13 @@
     bind:editingClient
     bind:clientEvents
     selectedObject={editingClient.object}
-    selectedSource={editingClient.source}
+    bind:selectedSource
+    bind:AnotherSourse
     {startEditEvent}
-    {saveEdit}
+    saveEdit={handleSubmit}
     {stopEdit}
     {openAddEventModal}
+    {ShowOtherSource}
+    bind:formRef
   />
 {/if}

@@ -83,9 +83,7 @@
   on:close
   on:submit={handleSubmit}
 >
-  <!-- {editingClientForEvents.id} -->
 
-  <!-- {console.log('editingClient внутри модалки события',editingClientForEvents)} -->
   <!-- Форма добавления нового клиента -->
   <Form id="my-form" on:submit={handleSubmit}>
     <TextInput

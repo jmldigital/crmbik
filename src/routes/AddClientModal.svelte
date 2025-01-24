@@ -1,11 +1,13 @@
 <script>
     import { Select, SelectItem, TextInput, Button, Modal, Form, TextArea } from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
-  
+    import ClientForm from "./ClientForm.svelte";
 
     let SelecedObject = 'БИК TOWER'
     let SelecedTarget = 'VK'
 
+    let formRef;
+    let isSubmitting = false;
 
     export let open = false;
     export let clients = [];
@@ -13,7 +15,7 @@
     };
 
     let ShowOtherSource = false;
-    let AnotherSourse = '';
+    let AnotherSourse = 'Другой источник';
 
    
   // // Отладочный вывод для проверки инициализации
@@ -23,18 +25,21 @@
   // console.log('Status:', newClient.status);
 
   
-    function handleSubmit(e) {
-      e.preventDefault();
-      const form = e.target;
+  // В родительском компоненте
+  async function handleSubmit(e) {
+        e.preventDefault();
+        
+        // Проверяем валидацию через ссылку на форму
+        if (!formRef.validateForm(newClient)) {
+            return;
+        }
 
-
-      console.log('Form:', form);
-
-      if (form && form.checkValidity()) {
-        addClient();
-      } else {
-        alert('Пожалуйста, заполните все обязательные поля');
-      }
+        try {
+            isSubmitting = true;
+            await addClient();
+        } finally {
+            isSubmitting = false;
+        }
     }
   
     async function addClient() {
@@ -59,6 +64,8 @@
     else {
       newClient.source = SelecedTarget
     }
+
+    // console.log('newClient.source',newClient.source);
 
       // Добавляем клиента с данными менеджера
       const { data, error: addError } = await supabase
@@ -103,10 +110,12 @@
     function handleSelectSource(event) {
       
 
-      if (event.target.value == 'Другой источник')
+      if (event.target.value ==  'Другой источник')
+           
     {
       ShowOtherSource = true;
       newClient.source = AnotherSourse;
+      console.log('AnotherSourse',AnotherSourse);
     }
       else {
         newClient.source = event.target.value;
@@ -115,14 +124,11 @@
       
     }
 
-   
-
-    
-
+ 
   </script>
   
   <Modal
-    passiveModal
+    
     bind:open={open}
     modalHeading="Добавить клиента"
     primaryButtonText="Добавить"
@@ -131,78 +137,18 @@
     hasForm
     on:open
     on:close
-   
+    on:submit={handleSubmit}
   >
 
-    <!-- Форма добавления нового клиента -->
-    <Form id='my-form' on:submit={handleSubmit}>
-      <TextInput
-        type="text"
-        placeholder="Имя"
-        bind:value={newClient.first_name}
-        required
-      />
-      <TextInput
-        type="text"
-        placeholder="Фамилия"
-        bind:value={newClient.last_name}
-      />
+  <ClientForm
+  {ShowOtherSource}
+  bind:AnotherSourse={AnotherSourse}
+  bind:this={formRef}
+  handleSelectChange ={handleSelectChange}
+  handleSelectSource={handleSelectSource}
+  client = {newClient}
+  ShowButton={false}
+  />
 
-
-      <Select on:change={handleSelectSource}
-      bind:selected={SelecedTarget}
-      >
-        <SelectItem value="Telegram" text="Telegram" />
-        <SelectItem value="VK" text="VK" />
-        <SelectItem value="Наружка" text="Наружка" />
-        <SelectItem value="Шел мимо" text="Шел мимо" />
-        <SelectItem value="Другой источник" text="Другой источник" />
-
-      </Select>
-
-
-      {#if ShowOtherSource}
-      <TextArea
-        light
-        labelText="Иной источник"
-        placeholder="Напишите какой источник привел клиента"
-        bind:value={AnotherSourse}
-      />
-      {/if}
-      
-
-      <Select 
-      on:change={handleSelectChange}
-      bind:selected={SelecedObject}
-      >
-        <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
-        <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
-        <SelectItem value="БИК TOWER" text="БИК TOWER" />
-      </Select>
-
-
-      <TextInput
-        type="tel"
-        placeholder="Телефон"
-        bind:value={newClient.phone}
-        required
-      />
-
-      <TextInput
-        type="email"
-        placeholder="Email"
-        bind:value={newClient.email}
-      />
-
-      <Select
-        bind:selected={newClient.status}
-      >
-        <SelectItem value="Новый" text="Новый" />
-        <SelectItem value="В работе" text="В работе" />
-        <SelectItem value="Завершен" text="Завершен" />
-      </Select>
-
-      <Button type="submit">Добавить клиента</Button>
-    </Form>
   </Modal>
   

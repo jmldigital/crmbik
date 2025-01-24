@@ -12,6 +12,10 @@
   import { Grid, Row, Column } from "carbon-components-svelte";
   import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
 
+  import ClientForm from "./ClientForm.svelte";
+
+  export let formRef;
+
   export let open;
   export let editingClient;
   export let clientEvents;
@@ -21,6 +25,10 @@
   export let openAddEventModal;
 
   export let startEditEvent;
+
+  export let ShowOtherSource = false;
+  
+  // let AnotherSourse = editingClient.source;
 
   function getTagType(status) {
     switch (status) {
@@ -38,17 +46,37 @@
   // let selected = editingClient.source;
   export let selectedObject = editingClient.object;
   export let selectedSource = editingClient.source;
+  export let AnotherSourse = '';
+
+ // Реактивное обновление списка событий
+//  $: {
+//   // AnotherSourse = editingClient.source;
+//       console.log('реактивное обновление источника клиента:', editingClient.source);
+    
+//   }
+
 
   function handleSelectChange(event) {
     editingClient.object = event.target.value;
+    
   }
 
   function handleSelectSource(event) {
-    editingClient.source = event.target.value;
+
+    if (event.target.value == 'Другой источник')
+    {
+      ShowOtherSource = true;
+       editingClient.source = AnotherSourse;
+      console.log('AnotherSourse в редакторе',AnotherSourse);
+    }
+      else {
+        editingClient.source = event.target.value;
+        ShowOtherSource = false;
+      }
   }
 
-  console.log("editingClient.object;", editingClient.object);
-  console.log("editingClient.source;", editingClient.source);
+  // console.log("editingClient.object;", editingClient.object);
+  // console.log("editingClient.source;", editingClient.source);
 </script>
 
 <Modal
@@ -61,54 +89,21 @@
   on:close
   on:submit={saveEdit}
 >
-  {console.log("id менеджера, кому принадлежит клиент", editingClient)}
+  <!-- {console.log("id менеджера, кому принадлежит клиент", editingClient)} -->
 
-  <Grid fullWidth>
-    <Row>
-      <Column>
-        <TextInput type="text" bind:value={editingClient.first_name} />
-      </Column>
 
-      <Column>
-        <TextInput type="text" bind:value={editingClient.last_name} />
-      </Column>
+  <ClientForm
+  {ShowOtherSource}
+  bind:AnotherSourse={AnotherSourse}
+  handleSelectChange ={handleSelectChange}
+  handleSelectSource={handleSelectSource}
+  client = {editingClient}
+  {selectedObject}
+  bind:selectedSource={selectedSource}
+  ShowButton={false}
+  bind:this={formRef}
+  />
 
-      <Column>
-        <TextInput type="tel" bind:value={editingClient.phone} />
-      </Column>
-
-      <Column>
-        <TextInput type="email" bind:value={editingClient.email} />
-      </Column>
-    </Row>
-
-    <Row>
-      <Column>
-        <Select on:change={handleSelectChange} bind:selected={selectedObject}>
-          <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
-          <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
-          <SelectItem value="БИК TOWER" text="БИК TOWER" />
-        </Select>
-      </Column>
-
-      <Column>
-        <Select on:change={handleSelectSource} bind:selected={selectedSource}>
-          <SelectItem value="Telegram" text="Telegram" />
-          <SelectItem value="VK" text="VK" />
-          <SelectItem value="Наружка" text="Наружка" />
-          <SelectItem value="Шел мимо" text="Шел мимо" />
-        </Select>
-      </Column>
-
-      <Column>
-        <Select bind:selected={editingClient.status}>
-          <SelectItem value="Новый" text="Новый" />
-          <SelectItem value="В работе" text="В работе" />
-          <SelectItem value="Завершен" text="Завершен" />
-        </Select>
-      </Column>
-    </Row>
-  </Grid>
 
   <div style="height:50px;"></div>
   <Grid narrow>
