@@ -5,8 +5,9 @@
   import AddClientModal from "./AddClientModal.svelte";
   import AddClientEventsModal from "./AddClientEventsModal.svelte";
   import ClientTable from "./ClientTable.svelte";
-  import EditClientModal from "./EditClientModal.svelte";
+  import ClientEvents from "./ClientEvents.svelte";
   import EditClientEventsModal from "./EditClientEventsModal.svelte";
+  import ClientForm from "./ClientForm.svelte";
 
   import Header from "./Header.svelte";
 
@@ -14,17 +15,17 @@
     let timeout = undefined;
 
   import {
+    Modal,
     ToastNotification,
   } from "carbon-components-svelte";
-  import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
-  import Add from "carbon-icons-svelte/lib/Add.svelte";
+
 
   let open = false;
   let openAdd = false;
   let openAddEvent = false;
   let openEditEvent = false;
 
-  let selectedSource = "";
+  let SelectedSource = "";
   let AnotherSourse = "";
   let ShowOtherSource = false;
 
@@ -68,27 +69,17 @@
 
   let EventsLen = null;
 
-  const standardSources = ["Telegram", "VK", "Наружка", "Шел мимо"];
+ 
 
-  $: {
-    if (isEditing) {
-      if (standardSources.includes(editingClient.source)) {
-        ShowOtherSource = false;
-        selectedSource = editingClient.source;
-        AnotherSourse = "";
-      } else {
-        ShowOtherSource = true;
-        selectedSource = "Другой источник";
-        AnotherSourse = editingClient.source;
-      }
-    }
-  }
+
 
   onMount(async () => {
     await loadClients();
     // await loadAllEvents();
     
   });
+
+
 
   // Получаем имя и фамилию менеджера для клиента
   async function getManagerEmail(managerId) {
@@ -275,7 +266,7 @@
 
   async function saveEdit() {
 
-    const sourceToSave = AnotherSourse || selectedSource;
+    const sourceToSave = AnotherSourse || SelectedSource;
 
     try {
     // Создаем объект с полями, которые нужно обновить
@@ -377,7 +368,7 @@
 <Header UserStatus={User}></Header>
 
 {#if showNotification}
-<div transition:fade>
+<div >
   <ToastNotification
     {timeout}
     kind="success"
@@ -414,6 +405,43 @@
   
 />
 
+
+{#if isEditing}
+
+<Modal
+bind:open
+modalHeading="Редактировать клиента"
+primaryButtonText="Сохранить"
+secondaryButtonText="Отменить"
+on:click:button--secondary={stopEdit}
+on:open
+on:close
+on:submit={saveEdit}
+>
+
+
+<ClientForm
+  SelectedObject={editingClient.object}
+  bind:SelectedSource
+  bind:AnotherSourse
+  client = {editingClient}
+  ShowButton={false}
+  bind:this={formRef}
+  {isEditing}
+  />
+
+  <ClientEvents
+
+  bind:clientEvents
+  {startEditEvent}
+  {openAddEventModal}
+  />
+
+</Modal>
+
+  {/if}
+
+
 <ClientTable
   bind:clients
   {startEdit}
@@ -421,21 +449,23 @@
   onButtonClick={openAddModal}
 />
 
+
+
 <!-- Модальное окно редактирования -->
 
-{#if isEditing}
+<!-- {#if isEditing}
   <EditClientModal
     bind:open
     bind:editingClient
     bind:clientEvents
-    selectedObject={editingClient.object}
-    bind:selectedSource
+    SelectedObject={editingClient.object}
+    bind:SelectedSource
     bind:AnotherSourse
     {startEditEvent}
     saveEdit={handleSubmit}
     {stopEdit}
     {openAddEventModal}
-    {ShowOtherSource}
     bind:formRef
   />
-{/if}
+{/if} -->
+
