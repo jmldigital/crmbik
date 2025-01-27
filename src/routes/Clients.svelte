@@ -10,16 +10,11 @@
 
   import Header from "./Header.svelte";
 
+  let showNotification = false;
+    let timeout = undefined;
+
   import {
-    Select,
-    SelectItem,
-    TextInput,
-    Button,
-    Link,
-    DataTable,
-    Modal,
-    Tag,
-    Form,
+    ToastNotification,
   } from "carbon-components-svelte";
   import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
   import Add from "carbon-icons-svelte/lib/Add.svelte";
@@ -269,6 +264,8 @@
         try {
             isSubmitting = true;
             await saveEdit();
+            showNotification = true;
+            timeout = 3000;
         } finally {
             isSubmitting = false;
         }
@@ -378,6 +375,22 @@
 </script>
 
 <Header UserStatus={User}></Header>
+
+{#if showNotification}
+<div transition:fade>
+  <ToastNotification
+    {timeout}
+    kind="success"
+    title="Отлично"
+    subtitle="Клиент успешно отредактирован {timeout.toLocaleString()} ms."
+    caption={new Date().toLocaleString()}
+    on:close={(e) => {
+      timeout = undefined;
+      
+    }}
+  />
+</div>
+{/if}
 
 <AddClientModal bind:open={openAdd} bind:clients bind:newClient />
 

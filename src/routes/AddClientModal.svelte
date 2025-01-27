@@ -1,8 +1,12 @@
 <script>
-    import { Select, SelectItem, TextInput, Button, Modal, Form, TextArea } from "carbon-components-svelte";
+    import { Modal, ToastNotification} from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
     import ClientForm from "./ClientForm.svelte";
 
+
+      // Состояния для уведомлений
+    let showNotification = false;
+    let timeout = undefined;
     let SelecedObject = 'БИК TOWER'
     let SelecedTarget = 'VK'
 
@@ -91,10 +95,10 @@
           email: '',
           status: 'Новый'
         };
+        showNotification = true;
+        timeout = 3000;
+        // alert('Клиент успешно добавлен');
 
-     
-
-        alert('Клиент успешно добавлен');
         open = false;
   
       } catch (err) {
@@ -127,6 +131,24 @@
  
   </script>
   
+
+  {#if showNotification}
+  <div transition:fade>
+    <ToastNotification
+      {timeout}
+      kind="success"
+      title="Success"
+      subtitle="Клиент успешно добавлен {timeout.toLocaleString()} ms."
+      caption={new Date().toLocaleString()}
+      on:close={(e) => {
+        timeout = undefined;
+        console.log(e.detail.timeout); // true if closed via timeout
+      }}
+    />
+  </div>
+{/if}
+
+
   <Modal
     
     bind:open={open}
@@ -139,6 +161,7 @@
     on:close
     on:submit={handleSubmit}
   >
+
 
   <ClientForm
   {ShowOtherSource}
