@@ -106,7 +106,6 @@ sortable
 zebra
   {headers}
   rows={filteredClients}
- 
 >
 
 

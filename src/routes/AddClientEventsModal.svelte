@@ -8,29 +8,67 @@
     Form,
   } from "carbon-components-svelte";
   import { supabase } from "../lib/supabase";
+  import EventForm from "./EventForm.svelte";
 
   export let open = false;
   export let client_events = [];
   export let newClientEvent = {
-    // description: '',
-    // status:''
+    //  description: '',
+    //  status:''
   };
+  let isEditing = false;
+  let timeout = undefined;
+  let formEventRef;
+  let showNotificationEvent = false;
 
   export let editingClientForEvents = null;
 
   // export let onEventAdded;
   export let onEventAdded = (clientId) => {};
 
-  function handleSubmit(e) {
-    e.preventDefault();
-    // const form = e.target;
-    // console.log("Form:", form);
-    // if (form && form.checkValidity()) {
-      addClientEvent(editingClientForEvents);
-    // } else {
-    //   alert("Пожалуйста, заполните все обязательные поля");
-    // }
-  }
+
+
+// Инициализируем с пустыми значениями
+
+
+  // Следим за открытием/закрытием модального окна
+  // $: {
+  //   if (open) {
+  //     // Сбрасываем значения при открытии
+  //     newClientEvent = {
+  //       description: '',
+        
+  //     };
+  //   } else {
+  //     isEditing = false;
+  //   }
+  // }
+
+
+      // В родительском компоненте
+      async function handleSubmit(e) {
+        e.preventDefault();
+        isEditing=true;
+        // Проверяем валидность формы
+        if (!formEventRef.isFormValidCheck()) {
+            console.log('форма не валидна',newClientEvent);
+            return;
+        }
+
+        try {
+            console.log('форма валидна',newClientEvent);
+            showNotificationEvent = true;
+            await addClientEvent(editingClientForEvents);;
+            timeout = 3000;
+        } catch (error) {
+            console.error('Ошибка при отправке формы:', error);
+        }
+        finally {
+          isEditing = false; // Сбрасываем флаг редактирования
+    }
+    }
+
+
 
   async function addClientEvent(client) {
     editingClientForEvents = { ...client };
@@ -71,6 +109,10 @@
   }
 </script>
 
+
+
+<!-- Добавление новго события -->
+
 <Modal
   
   bind:open
@@ -78,25 +120,16 @@
   primaryButtonText="Добавить"
   secondaryButtonText="Отменить"
   on:click:button--secondary={() => (open = false)}
-  hasForm
   on:open
   on:close
   on:submit={handleSubmit}
 >
 
-  <!-- Форма добавления нового клиента -->
-  <Form id="my-form" on:submit={handleSubmit}>
-    <TextInput
-      type="text"
-      placeholder="Описание события"
-      bind:value={newClientEvent.description}
-    />
-
-    <Select bind:selected={newClientEvent.status}>
-      <SelectItem value="Беседа" text="Беседа" />
-      <SelectItem value="Встреча" text="Встреча" />
-      <SelectItem value="Звонок" text="Звонок" />
-    </Select>
-    <!-- <Button type="submit">Добавить событие клиента</Button> -->
-  </Form>
+<EventForm
+bind:client_events={newClientEvent}
+bind:SelectedStatus = {newClientEvent.status}
+bind:SelectedDescription = {newClientEvent.description}
+bind:this={formEventRef}
+{isEditing}
+/>
 </Modal>

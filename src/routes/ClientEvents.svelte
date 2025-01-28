@@ -35,8 +35,6 @@
   }
 
 
-
-
 </script>
 
 
@@ -44,7 +42,7 @@
   <div style="height:50px;"></div>
   <Grid narrow>
     <Row>
-      <Column><h3>События</h3></Column>
+      <!-- <Column><strong>События клиента</strong></Column> -->
       <Column>
         <Button size="field" kind="ghost" on:click={openAddEventModal}
           >Добавить событие

@@ -108,7 +108,7 @@
 
 <Modal
   bind:open={open}
-  modalHeading="Добавить клиента"
+  
   primaryButtonText="Добавить"
   secondaryButtonText="Отменить"
   on:click:button--secondary={() => (open = false)}

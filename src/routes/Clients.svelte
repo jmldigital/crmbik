@@ -6,18 +6,25 @@
   import AddClientEventsModal from "./AddClientEventsModal.svelte";
   import ClientTable from "./ClientTable.svelte";
   import ClientEvents from "./ClientEvents.svelte";
-  import EditClientEventsModal from "./EditClientEventsModal.svelte";
+  // import EditClientEventsModal from "./EditClientEventsModal.svelte";
   import ClientForm from "./ClientForm.svelte";
+  import EventForm from "./EventForm.svelte";
 
   import Header from "./Header.svelte";
 
   let showNotification = false;
     let timeout = undefined;
+   
+    
+    let showNotificationEvent = false;
 
   import {
     Modal,
     ToastNotification,
   } from "carbon-components-svelte";
+
+
+  let formEventRef;
 
 
   let open = false;
@@ -48,6 +55,7 @@
   let newClient = {};
 
   let isEditing = false;
+  let isEditingEvent=false;
 
   let editingClient = {
     first_name: "",
@@ -64,8 +72,8 @@
     status: "",
   };
 
-  let selectedStatus = "";
-  let selectedDescription = "";
+  let SelectedStatus = "";
+  let SelectedDescription = "";
 
   let EventsLen = null;
 
@@ -246,7 +254,7 @@
   // В родительском компоненте
   async function handleSubmit(e) {
         e.preventDefault();
-        
+        console.log('formRef сейчас такой',formRef);
         // Проверяем валидацию через ссылку на форму
         if (!formRef.validateForm(editingClient)) {
             return;
@@ -313,8 +321,8 @@
 
   function startEditEvent(event) {
     editingEvent = { ...event };
-    selectedStatus = editingEvent.status;
-    selectedDescription = editingEvent.description;
+    SelectedStatus = editingEvent.status;
+    SelectedDescription = editingEvent.description;
     // console.log('editingEvent клиента ',editingEvent);
     openEditEvent = true;
     isEditing = false;
@@ -330,14 +338,45 @@
     isEditing = false;
   }
 
+
+
+    // В родительском компоненте
+    async function handleSubmitCopy(e) {
+        e.preventDefault();
+        isEditingEvent = true;
+
+        // Проверяем валидность формы
+        if (!formEventRef.isFormValidCheck()) {
+            console.log('форма не валидна');
+            return;
+        }
+
+        try {
+            console.log('форма валидна SelectedStatus',SelectedStatus);
+            console.log('форма валидна SelectedDescription',SelectedDescription);
+            showNotificationEvent = true;
+            await handleSubmitEvent(e);
+            timeout = 3000;
+        } catch (error) {
+            console.error('Ошибка при отправке формы:', error);
+        }
+        finally {
+          isEditing = false; // Сбрасываем флаг редактирования
+          isEditingEvent = false;
+    }
+    }
+
+  
+
+
   async function handleSubmitEvent(e) {
-    e.preventDefault();
+     e.preventDefault();
 
     // Создаем объект с полями, которые нужно обновить
     let eventToUpdate = {
       // Укажите только те поля, которые нужно обновить
-      description: selectedDescription,
-      status: selectedStatus,
+      description: SelectedDescription,
+      status: SelectedStatus,
       // Добавьте другие поля, которые нужно обновить
     };
 
@@ -350,9 +389,7 @@
       console.error("Error:", error);
       return;
     }
-    // console.log('editingEvent after update',editingEvent)
-    // console.log('eventToUpdate after update',eventToUpdate)
-    // console.log('editingClient after update',editingClient)
+
 
     openEditEvent = false;
 
@@ -383,6 +420,11 @@
 </div>
 {/if}
 
+
+
+
+
+
 <AddClientModal bind:open={openAdd} bind:clients bind:newClient />
 
 <!--  -->
@@ -395,7 +437,32 @@
   onEventAdded={updateEventCounter}
 />
 
-<EditClientEventsModal
+
+<!-- Окно редактирования события клиента -->
+
+<Modal
+modalHeading="Редактирование события"
+primaryButtonText="Сохранить"
+secondaryButtonText="Отменить"
+bind:open={openEditEvent}
+on:close = {closeWindow}
+on:submit={handleSubmitCopy}
+>
+
+
+<EventForm
+bind:client_events={editingEvent}
+bind:SelectedStatus
+bind:SelectedDescription
+bind:this={formEventRef}
+bind:isEditing = {isEditingEvent}
+/>
+
+</Modal>
+
+
+
+<!-- <EditClientEventsModal
   bind:open={openEditEvent}
   bind:client_events={clientEvents}
   bind:selectedStatus
@@ -403,21 +470,38 @@
   {closeWindow}
   handleSubmit={handleSubmitEvent}
   
-/>
+/> -->
 
 
 {#if isEditing}
 
 <Modal
 bind:open
-modalHeading="Редактировать клиента"
+modalHeading="Информация по клиенту"
 primaryButtonText="Сохранить"
 secondaryButtonText="Отменить"
 on:click:button--secondary={stopEdit}
 on:open
 on:close
-on:submit={saveEdit}
+on:submit={handleSubmit}
 >
+
+{#if showNotificationEvent}
+<div >
+  <ToastNotification
+    {timeout}
+    kind="success"
+    title="Отлично"
+    subtitle="Событие клиента успешно отредактировано "
+    caption={new Date().toLocaleString()}
+    on:close={(e) => {
+      timeout = undefined;
+      
+    }}
+  />
+</div>
+{/if}
+
 
 
 <ClientForm

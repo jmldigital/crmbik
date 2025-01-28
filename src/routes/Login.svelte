@@ -9,7 +9,8 @@
     InlineNotification,
     Grid,
     Row,
-    Column
+    Column,
+    PasswordInput
   } from "carbon-components-svelte";
   
   let email = '';
@@ -88,7 +89,7 @@
           required
         />
         
-        <TextInput
+        <PasswordInput
           labelText="Пароль"
           placeholder="Введите пароль"
           type="password"

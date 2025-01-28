@@ -1,5 +1,16 @@
 <script>
-    import { Select, SelectItem, TextInput, Button, Modal, Form, TextArea, InlineNotification, ToastNotification } from "carbon-components-svelte";
+    import { 
+        Select, 
+        SelectItem, 
+        TextInput, 
+        Button, 
+        Modal, 
+        Form, 
+        TextArea, 
+        InlineNotification, 
+        ToastNotification, 
+        Accordion, 
+        AccordionItem } from "carbon-components-svelte";
     import { supabase } from '../lib/supabase'
   
     export let client = {};
@@ -54,25 +65,38 @@
     }
   
     export function validateForm(client) {
-        formErrors = {};
-        if (!client.first_name?.trim()) {
-            formErrors.first_name = 'Имя обязательно';
-        }
-        if (!client.phone?.trim()) {
-            formErrors.phone = 'Телефон обязателен';
-        }
-        if (client.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
-            formErrors.email = 'Неверный формат email';
-        }
-        if (SelectedSource === 'Другой источник' && !AnotherSourse?.trim()) {
-            formErrors.source = 'Укажите источник';
-        }
-        isFormValid = Object.keys(formErrors).length === 0;
-        if (!isFormValid) {
-            showError('Пожалуйста, заполните обязательные поля:\n' + Object.values(formErrors).join('\n'));
-        }
-        return isFormValid;
+    formErrors = {};
+
+    if (!client.first_name?.trim()) {
+        formErrors.first_name = 'Имя обязательно';
     }
+
+    if (!client.phone?.trim()) {
+        formErrors.phone = 'Телефон обязателен';
+    } else if (!/^\d{11}$/.test(client.phone)) {
+        formErrors.phone = 'Телефон должен содержать 11 цифр';
+    }
+
+    if (!client.email?.trim()) {
+        formErrors.email = 'Email обязателен';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
+        formErrors.email = 'Неверный формат email';
+    }
+
+    if (SelectedSource === 'Другой источник' && !AnotherSourse?.trim()) {
+        formErrors.source = 'Укажите источник';
+    }
+
+    isFormValid = Object.keys(formErrors).length === 0;
+
+    if (!isFormValid) {
+        showError('Пожалуйста, заполните обязательные поля:\n' + Object.values(formErrors).join('\n'));
+    }
+
+    return isFormValid;
+}
+
+
   
     function handleSelectObject(event) {
         client.object = event.target.value;
@@ -86,10 +110,18 @@
             ShowOtherSource = false;
         }
     }
-  
+  let open = !isEditing;
  
   </script>
-  
+
+
+
+
+
+<Accordion  size="xl">
+    <AccordionItem {open} title={isEditing ? client.first_name : 'Добавление нового клиента'}>
+      <p>
+     
   <Form id='my-form'>
     {#if showNotification}
         <InlineNotification
@@ -176,3 +208,15 @@
         <Button type="submit">Добавить клиента</Button>
     {/if}
   </Form>
+      </p>
+    </AccordionItem>
+
+  </Accordion>
+
+  
+  
+
+
+ 
+
+
