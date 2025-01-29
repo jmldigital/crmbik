@@ -7,37 +7,53 @@
         Button 
     } from "carbon-components-svelte";
     import { createEventDispatcher } from 'svelte';
-    
+    import { onMount } from 'svelte';
+
+    import { referenceStore } from './referenceStore';
+
     const dispatch = createEventDispatcher();
     
 
-
-    //  client.status = SelectedStatus;
-    //  client.source = SelectedSource;
+   // Получаем данные из store
+   $: sources = $referenceStore.sources;
+    $: statuses = $referenceStore.statuses;
+    $: objects = $referenceStore.objects;
 
     // Определяем props с значением по умолчанию
+
     export let client = {
         first_name: "",
         last_name: "",
         object: "",
         phone: "",
-        source: '',
+        source: sources[0]?.value || "", // Значение по умолчанию - первый элемент
         email: "",
-        status: ''
+        status: statuses[0]?.value || ""  // Значение по умолчанию - первый элемент
     };
+
+
     export let isEditing = false;
 
+    // Инициализируем выбранные значения
+    let SelectedStatus = client.status;
+    let SelectedSource = client.source;
 
-    let SelectedStatus;
-    let SelectedSource;
-
+    // Реагируем на изменения client
     $: {
-     SelectedStatus =client.status;
-     SelectedSource = client.source;
+        if (client) {
+            SelectedStatus = client.status || "Новый";
+            SelectedSource = client.source || "Telegram";
+        }
     }
 
-    // Инициализируем formData сразу, используя client
-    // let formData = { ...client };
+    onMount(() => {
+        // Устанавливаем начальные значения при монтировании компонента
+        SelectedStatus = client.status || "Новый";
+        SelectedSource = client.source || "Telegram";
+    });
+
+    console.log('SelectedSource в форме на данный момент',SelectedSource);
+  
     
     let errors = {};
 
@@ -67,30 +83,11 @@
         e.preventDefault();
         
         if (validateForm()) {
-
             client.status = SelectedStatus;
             client.source = SelectedSource;
-
         console.log('форма валидна обновляем клиента',client);
 
-
             dispatch('submit', client);
-
-
-        //     if (!isEditing) {
-        //     client = {
-        //         first_name: "",
-        //         last_name: "",
-        //         object: "",
-        //         phone: "",
-        //         source: "",
-        //         email: "",
-        //         status: "Новый"
-        //     };
-        // }
-
-            
-
         }
         else {
             console.log('форма не валидна',client);
@@ -118,20 +115,18 @@
         labelText="Источник"
         bind:selected={SelectedSource}
     >
-        <SelectItem value="Telegram" text="Telegram" />
-        <SelectItem value="VK" text="VK" />
-        <SelectItem value="Наружка" text="Наружка" />
-        <SelectItem value="Шел мимо" text="Шел мимо" />
-        <SelectItem value='Другой источник' text='Другой источник' />
+    {#each sources as source}
+    <SelectItem value={source.value} text={source.text} />
+      {/each}
     </Select>
 
     <Select 
         labelText="Объект"
         bind:selected={client.object}
     >
-        <SelectItem value="ЮЗ-Б" text="ЮЗ-Б" />
-        <SelectItem value="ЮЗ-А" text="ЮЗ-А" />
-        <SelectItem value="БИК TOWER" text="БИК TOWER" />
+    {#each objects as object}
+    <SelectItem value={object.value} text={object.text} />
+{/each}
     </Select>
 
     <TextInput
@@ -156,9 +151,9 @@
         bind:selected={SelectedStatus}
         
     >
-        <SelectItem value="Новый" text="Новый" />
-        <SelectItem value="В работе" text="В работе" />
-        <SelectItem value="Завершен" text="Завершен" />
+    {#each statuses as status}
+    <SelectItem value={status.value} text={status.text} />
+{/each}
     </Select>
 
     <Button type="submit">Сохранить</Button>

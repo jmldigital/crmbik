@@ -12,36 +12,22 @@
     Column,
     PasswordInput
   } from "carbon-components-svelte";
-
-
+  import { userStore } from './userStore';
   import { adminStore } from './adminStore';
   
   let email = '';
-  let password = 'aasas';
+  let password = '';
   let errorMessage = '';
   let loading = false;
 
-  // console.log('Component initialized');
-
-  // await adminStore.checkAdminStatus(); // Дождитесь проверки админа
-  
-
-  onMount(() => {
-    console.log('Login component mounted');
-    return () => {
-      console.log('Login component cleanup');
-    };
-
-
+  onMount(async () => {
+    // Проверяем существующую сессию
+    const { data: { session } } = await supabase.auth.getSession();
+    if (session?.user) {
+      userStore.setUser(session.user);
+      navigate('/clients');
+    }
   });
-
-  onDestroy(() => {
-    console.log('Login component destroyed');
-  });
-
-  $: {
-    console.log('Values changed:', { email, password });
-  }
 
   async function handleSubmit(e) {
     console.log('Form submitted');
@@ -50,13 +36,20 @@
     try {
       loading = true;
       errorMessage = '';
+      userStore.setLoading(true);
       
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data: { user }, error } = await supabase.auth.signInWithPassword({
         email,
         password
       });
       
       if (error) throw error;
+      
+      // Сохраняем пользователя в store
+      userStore.setUser(user);
+      
+      // Проверяем статус админа
+      await adminStore.checkAdminStatus();
       
       console.log('Login successful');
       navigate('/clients');
@@ -64,11 +57,12 @@
     } catch (error) {
       console.error('Login error:', error);
       errorMessage = error.message;
+      userStore.setError(error.message);
     } finally {
       loading = false;
+      userStore.setLoading(false);
     }
   }
-
 
   function goToReg() {
     navigate('/register');
@@ -107,13 +101,14 @@
         
         <Button 
           type="submit"
-          loading={loading}
+          disabled={loading}
         >
           {loading ? 'Вход...' : 'Войти'}
         </Button>
         <Button 
           kind="tertiary"
           on:click={goToReg}
+          disabled={loading}
         >
           Регистрация нового пользователя
         </Button>

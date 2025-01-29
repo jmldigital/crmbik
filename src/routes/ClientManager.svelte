@@ -12,6 +12,9 @@
     import { eventStore } from './Events/eventStore';
     import { onMount } from 'svelte';
     import { adminStore } from './adminStore';
+    import { referenceStore } from './referenceStore';
+
+    import { userStore } from './userStore';
 
     // Состояния
     let clients = [];
@@ -21,10 +24,18 @@
     
     let User = "Unown";
     
-
+    // Используйте данные из store
+    
     $: events = $eventStore.events;
     $: isAdmin = $adminStore.isAdmin;
     $: User = $adminStore.isAdmin ? "Admin" : "Менеджер";
+
+
+      // Получаем данные из store
+   $: sources = $referenceStore.sources;
+    $: statuses = $referenceStore.statuses;
+    $: objects = $referenceStore.objects;
+
 
     let currentClient = {
         first_name: "",
@@ -38,17 +49,9 @@
 
 
  onMount(async () => {
-    await adminStore.checkAdminStatus(); // Дождитесь проверки админа
-    // console.log('Admin status checked:', $adminStore.isAdmin);
-    await loadClients(); // Затем загружайте клиентов
-});
-
-
-
- 
-
-
-
+        // Просто загружаем клиентов, статус админа уже известен из store
+        await loadClients();
+    });
 
     // Получаем имя и фамилию менеджера для клиента
     async function getManagerEmail(managerId) {
@@ -223,15 +226,15 @@
   function handleAdd() {
 
     currentClient = {
-    first_name: "",
-    last_name: "",
-    object: "",
-    phone: "",
-    source: "",
-    email: "",
-    status: "Новый", // дефолтное значение для статуса
-  };
-    
+        first_name: "",
+        last_name: "",
+        object: objects[0]?.value || "",
+        phone: "",
+        source: sources[0]?.value || "", // Значение по умолчанию - первый элемент
+        email: "",
+        status: statuses[0]?.value || ""  // Значение по умолчанию - первый элемент
+    };
+
 
     isEditing = false;
     isModalOpen = true;
@@ -343,9 +346,7 @@ const { Manager, ...clientDataWithoutManager } = clientData;
 
 
 <Header UserStatus={User}></Header>
-
-<p> событияяяя {events}</p>
-  
+ 
   <div class="client-manager">
     <ClientActions on:add={handleAdd} />
     

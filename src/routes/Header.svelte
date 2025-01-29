@@ -19,6 +19,9 @@
      import Logout from "carbon-icons-svelte/lib/Logout.svelte";
      import { navigate } from "svelte-routing";
 
+     import { userStore } from './userStore';
+
+
   import UserAvatarFilledAlt from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
 
   export let UserStatus;
@@ -30,6 +33,9 @@
 
     let isSideNavOpen = false;
 
+    $: currentUser = $userStore.user;
+
+console.log('currentUser в хедере',currentUser);
 
   // Функция для выхода из системы
   async function handleLogout() {
@@ -50,9 +56,8 @@
     <SkipToContent />
   </svelte:fragment>
   <HeaderNav>
-    <HeaderNavItem href="/" text="Link 1" />
-    <HeaderNavItem href="/" text="Link 2" />
-    <HeaderNavItem href="/" text="Link 3" />
+    <HeaderNavItem text={currentUser.email} />
+    <HeaderNavItem  text={UserStatus} />
     <HeaderNavMenu text="Menu">
       <HeaderNavItem href="/" text="Link 1" />
       <HeaderNavItem href="/" text="Link 2" />
@@ -78,6 +83,7 @@
       icon={Logout}
       on:click={handleLogout}
     />
+    
   </HeaderUtilities>
 
 </Header>
@@ -87,6 +93,7 @@
     <Row>
       <Column>
         <h2>Мои клиенты</h2>
+     
       </Column>
     </Row>
   </Grid>
