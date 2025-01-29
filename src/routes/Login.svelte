@@ -12,19 +12,27 @@
     Column,
     PasswordInput
   } from "carbon-components-svelte";
+
+
+  import { adminStore } from './adminStore';
   
   let email = '';
   let password = 'aasas';
   let errorMessage = '';
   let loading = false;
 
-  console.log('Component initialized');
+  // console.log('Component initialized');
+
+  // await adminStore.checkAdminStatus(); // Дождитесь проверки админа
+  
 
   onMount(() => {
     console.log('Login component mounted');
     return () => {
       console.log('Login component cleanup');
     };
+
+
   });
 
   onDestroy(() => {

@@ -5,6 +5,8 @@
     import { createEventDispatcher } from 'svelte';
     import { clientStore } from './clientStore'; // Исправлен путь импорта
     import ClientEventManager from './Events/ClientEventManager.svelte';
+
+    import { adminStore } from './adminStore';
     
     let expandedClient = null;
 
@@ -17,15 +19,47 @@
     // Подписываемся на изменения store
     $: clients = $clientStore.clients;
   
-    const headers = [
+    
+
+    $: headers = $adminStore.isAdmin 
+    ? [
+        { key: 'Manager', value: 'Менеджер' },
+        // { key: 'first_name', value: 'Имя' },
+        { key: 'last_name', value: 'Фамилия' },
+        { key: 'object', value: 'Объект' },
+        { key: 'phone', value: 'Телефон' },
+        { key: 'source', value: 'Источник' },
+        // { key: 'email', value: 'Email' },
+        { key: 'status', value: 'Статус' },
+        { key: 'Touches', value: '', width: "40px" },
+        { key: 'lastEventStatus', value: 'Последнее' },
+        { key: 'actions', value: '' }
+
+      ]
+    : [
         { key: 'first_name', value: 'Имя' },
         { key: 'last_name', value: 'Фамилия' },
         { key: 'object', value: 'Объект' },
         { key: 'phone', value: 'Телефон' },
         { key: 'source', value: 'Источник' },
+        // { key: 'email', value: 'Email' },
         { key: 'status', value: 'Статус' },
+
         { key: 'actions', value: '' }
-    ];
+      ];
+
+
+
+
+    // const headers = [
+    //     { key: 'first_name', value: 'Имя' },
+    //     { key: 'last_name', value: 'Фамилия' },
+    //     { key: 'object', value: 'Объект' },
+    //     { key: 'phone', value: 'Телефон' },
+    //     { key: 'source', value: 'Источник' },
+    //     { key: 'status', value: 'Статус' },
+    //     { key: 'actions', value: '' }
+    // ];
 
     // Для отладки
     // $: {

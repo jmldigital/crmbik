@@ -11,6 +11,7 @@
     import { clientStore } from './clientStore';
     import { eventStore } from './Events/eventStore';
     import { onMount } from 'svelte';
+    import { adminStore } from './adminStore';
 
     // Состояния
     let clients = [];
@@ -20,7 +21,10 @@
     
     let User = "Unown";
     
+
     $: events = $eventStore.events;
+    $: isAdmin = $adminStore.isAdmin;
+    $: User = $adminStore.isAdmin ? "Admin" : "Менеджер";
 
     let currentClient = {
         first_name: "",
@@ -33,22 +37,17 @@
     };
 
 
-    onMount(() => {
-    loadClients();
+ onMount(async () => {
+    await adminStore.checkAdminStatus(); // Дождитесь проверки админа
+    // console.log('Admin status checked:', $adminStore.isAdmin);
+    await loadClients(); // Затем загружайте клиентов
 });
 
 
 
-    async function isAdmin(user) {
-    const { data, error } = await supabase.rpc("is_admin");
-    if (error) {
-      console.error("Error checking admin role:", error);
-      return false;
-    }
-    return data;
-  }
+ 
 
-  let is_Admin = false;
+
 
 
     // Получаем имя и фамилию менеджера для клиента
@@ -77,99 +76,148 @@
 
 
 
- // Функция загрузки клиентов
-async function loadClients() {
+  async function loadClients() {
     clientStore.setLoading(true);
     try {
-        console.log("Starting to load clients");
-
+        // Получаем текущего пользователя
         const { data: userData, error: authError } = await supabase.auth.getUser();
         if (authError) throw authError;
         if (!userData) throw new Error("No user data found.");
 
-        let query = supabase.from("clients").select("*");
-        const isAdminUser = await isAdmin(userData.user);
 
-        if (isAdminUser) {
-            User = "Admin";
-            is_Admin = true;
+        // Формируем базовый запрос
+        let query = supabase
+            .from("clients")
+            .select("*")
+            .order('created_at', { ascending: false });
 
-            const { data, error } = await query;
-            if (error) throw error;
-
-            // Обработка данных для админа
-            const processedClients = await Promise.all(
-                data.map(async (client) => {
-                    const managerEmail = await getManagerEmail(client.manager_id);
-                    const { events, count, lastEventStatus } = await loadEventsForClient(client.id);
-                    return {
-                        ...client,
-                        Manager: managerEmail,
-                        Touches: count,
-                        lastEventStatus: lastEventStatus,
-                    };
-                })
-            );
-
-            // Обновляем store вместо локальной переменной
-            clientStore.setClients(processedClients);
-
-        } else {
-            User = "Менеджер";
-            query = query.eq("manager_id", userData.user.id);
-            const { data, error } = await query;
-            if (error) throw error;
-            
-            // Обновляем store для менеджера
-            clientStore.setClients(data);
+        // Добавляем фильтр только для менеджера
+        if (!isAdmin) {
+            query = query.eq('manager_id', userData.user.id);
         }
+
+        // Выполняем запрос
+        const { data: clientsData, error: clientsError } = await query;
+        if (clientsError) throw clientsError;
+
+        // Для админа добавляем информацию о менеджерах
+        const processedClients = isAdmin 
+            ? await Promise.all(
+                clientsData.map(async (client) => ({
+                    ...client,
+                    Manager: await getManagerEmail(client.manager_id)
+                }))
+            )
+            : clientsData;
+
+        // Обновляем store
+        clientStore.setClients(processedClients);
+
+        console.log('$adminStore.isAdmin ',$adminStore.isAdmin);
 
     } catch (error) {
         clientStore.setError(error.message);
-        console.error("Unexpected error:", error);
+        console.error("Error loading clients:", error);
     } finally {
         clientStore.setLoading(false);
     }
 }
 
 
-  async function loadEventsForClient(clientId) {
-    try {
-      // Загрузка всех событий для данного клиента
-      const { data, error } = await supabase
-        .from("client_events")
-        .select("*")
-        .eq("client_id", clientId)
-        .order("created_at", { ascending: false }); // Сортировка по дате создания в порядке убывания
 
-      if (error) {
-        console.error(
-          "Ошибка получения данных из таблицы client_events:",
-          error
-        );
-        return { events: [], count: 0, lastEventStatus: null };
-      }
+ // Функция загрузки клиентов
+// async function loadClients() {
+//     clientStore.setLoading(true);
+//     try {
+//         console.log("Starting to load clients");
 
-      // Форматирование даты и подсчет количества событий
-      const clientEvents = data.map((event) => ({
-        ...event,
-        created_at: formatDateToHumanReadable(event.created_at),
-      }));
+//         const { data: userData, error: authError } = await supabase.auth.getUser();
+//         if (authError) throw authError;
+//         if (!userData) throw new Error("No user data found.");
 
-      const eventCount = clientEvents.length;
-      const lastEventStatus =
-        clientEvents.length > 0 ? clientEvents[0].status : null;
+//         let query = supabase.from("clients").select("*");
+//         const isAdminUser = await isAdmin(userData.user);
 
-      return {
-        events: clientEvents,
-        count: eventCount,
-        lastEventStatus: lastEventStatus,
-      };
-    } catch (error) {
-      console.error("Unexpected error:", error);
-      return { events: [], count: 0, lastEventStatus: null };
-    }
-  }
+//         if (isAdminUser) {
+//             User = "Admin";
+//             is_Admin = true;
+
+//             const { data, error } = await query;
+//             if (error) throw error;
+
+//             // Обработка данных для админа
+//             const processedClients = await Promise.all(
+//                 data.map(async (client) => {
+//                     const managerEmail = await getManagerEmail(client.manager_id);
+//                     const { events, count, lastEventStatus } = await loadEventsForClient(client.id);
+//                     return {
+//                         ...client,
+//                         Manager: managerEmail,
+//                         Touches: count,
+//                         lastEventStatus: lastEventStatus,
+//                     };
+//                 })
+//             );
+
+//             // Обновляем store вместо локальной переменной
+//             clientStore.setClients(processedClients);
+
+//         } else {
+//             User = "Менеджер";
+//             query = query.eq("manager_id", userData.user.id);
+//             const { data, error } = await query;
+//             if (error) throw error;
+            
+//             // Обновляем store для менеджера
+//             clientStore.setClients(data);
+//         }
+
+//     } catch (error) {
+//         clientStore.setError(error.message);
+//         console.error("Unexpected error:", error);
+//     } finally {
+//         clientStore.setLoading(false);
+//     }
+// }
+
+
+//   async function loadEventsForClient(clientId) {
+//     try {
+//       // Загрузка всех событий для данного клиента
+//       const { data, error } = await supabase
+//         .from("client_events")
+//         .select("*")
+//         .eq("client_id", clientId)
+//         .order("created_at", { ascending: false }); // Сортировка по дате создания в порядке убывания
+
+//       if (error) {
+//         console.error(
+//           "Ошибка получения данных из таблицы client_events:",
+//           error
+//         );
+//         return { events: [], count: 0, lastEventStatus: null };
+//       }
+
+//       // Форматирование даты и подсчет количества событий
+//       const clientEvents = data.map((event) => ({
+//         ...event,
+//         created_at: formatDateToHumanReadable(event.created_at),
+//       }));
+
+//       const eventCount = clientEvents.length;
+//       const lastEventStatus =
+//         clientEvents.length > 0 ? clientEvents[0].status : null;
+
+//       return {
+//         events: clientEvents,
+//         count: eventCount,
+//         lastEventStatus: lastEventStatus,
+//       };
+//     } catch (error) {
+//       console.error("Unexpected error:", error);
+//       return { events: [], count: 0, lastEventStatus: null };
+//     }
+//   }
 
 
   function handleAdd() {
@@ -262,12 +310,18 @@ async function loadClients() {
   async function updateClient(clientData) {
     try {
         clientStore.setLoading(true);
+
+// Деструктурируем объект, исключая свойство Manager
+const { Manager, ...clientDataWithoutManager } = clientData;
+
         const { error } = await supabase
             .from('clients')
-            .update(clientData)
+            .update(clientDataWithoutManager)
             .eq('id', clientData.id);
 
         if (error) throw error;
+
+        console.log('clientData при обновлении',clientData);
 
         // Обновляем store
         const currentClients = $clientStore.clients;
