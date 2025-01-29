@@ -5,7 +5,7 @@
   import AddClientModal from "./AddClientModal.svelte";
   import AddClientEventsModal from "./AddClientEventsModal.svelte";
   import ClientTable from "./ClientTable.svelte";
-  import ClientEvents from "./ClientEvents.svelte";
+  import ClientEvents from "./Events/ClientEvents.svelte";
   // import EditClientEventsModal from "./EditClientEventsModal.svelte";
   import ClientForm from "./ClientForm.svelte";
   import EventForm from "./EventForm.svelte";
@@ -354,9 +354,10 @@
         try {
             console.log('форма валидна SelectedStatus',SelectedStatus);
             console.log('форма валидна SelectedDescription',SelectedDescription);
-            showNotificationEvent = true;
+            
             await handleSubmitEvent(e);
             timeout = 3000;
+            showNotificationEvent = true;
         } catch (error) {
             console.error('Ошибка при отправке формы:', error);
         }
@@ -392,6 +393,7 @@
 
 
     openEditEvent = false;
+    showNotificationEvent=false;
 
     // Принудительно обновляем события
     const { events } = await loadEventsForClient(editingClient.id);
@@ -404,8 +406,25 @@
 
 <Header UserStatus={User}></Header>
 
+{#if showNotificationEvent}
+<div style="position:absolute;right:0px;top:30px;">
+  <ToastNotification
+    {timeout}
+    kind="success"
+    title="Отлично"
+    subtitle="Событие клиента успешно отредактировано "
+    caption={new Date().toLocaleString()}
+    on:close={(e) => {
+      timeout = undefined;
+      
+    }}
+  />
+</div>
+{/if}
+
+
 {#if showNotification}
-<div >
+<div style="position:absolute;right:0px;top:30px;">
   <ToastNotification
     {timeout}
     kind="success"
@@ -486,21 +505,7 @@ on:close
 on:submit={handleSubmit}
 >
 
-{#if showNotificationEvent}
-<div >
-  <ToastNotification
-    {timeout}
-    kind="success"
-    title="Отлично"
-    subtitle="Событие клиента успешно отредактировано "
-    caption={new Date().toLocaleString()}
-    on:close={(e) => {
-      timeout = undefined;
-      
-    }}
-  />
-</div>
-{/if}
+
 
 
 

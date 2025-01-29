@@ -4,6 +4,7 @@
   import Clients from "./routes/Clients.svelte";
   import '../src/carbon.scss';
   import Login from "./routes/Login.svelte";
+  import ClientManager from './routes/ClientManager.svelte';
 
   console.log('App.svelte: Component initialized');
   
@@ -15,11 +16,23 @@
   console.log('App.svelte: Base path:', base);
 </script>
 
-<Router {url} {base}>
+<Router {url} {base}> --
   <main>
-    <Route path="" component={Login} /> <!-- Изменено с "/" на "" -->
-    <Route path="clients" component={Clients} /> <!-- Убран начальный слеш -->
-    <Route path="register" component={Register} /> <!-- Убран начальный слеш -->
-    <Route path="login" component={Login} /> <!-- Убран начальный слеш -->
-  </main>
-</Router>
+    <Route path="" component={Login} /> 
+    <Route path="clients" component={ClientManager} /> 
+    <Route path="register" component={Register} />
+    <Route path="login" component={Login} /> 
+  </main> 
+ </Router> 
+
+
+
+
+<!-- <Router {url} {base}> --
+  <main>
+    <Route path="" component={Login} /> 
+    <Route path="clients" component={Clients} /> 
+    <Route path="register" component={Register} />
+    <Route path="login" component={Login} /> 
+  </main> 
+ </Router>  -->

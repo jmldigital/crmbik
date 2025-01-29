@@ -6,6 +6,7 @@
     Button,
     Modal,
     Form,
+    ToastNotification
   } from "carbon-components-svelte";
   import { supabase } from "../lib/supabase";
   import EventForm from "./EventForm.svelte";
@@ -32,17 +33,17 @@
 
 
   // Следим за открытием/закрытием модального окна
-  // $: {
-  //   if (open) {
-  //     // Сбрасываем значения при открытии
-  //     newClientEvent = {
-  //       description: '',
+  $: {
+    if (open) {
+      // Сбрасываем значения при открытии
+      newClientEvent = {
+        description: '',
         
-  //     };
-  //   } else {
-  //     isEditing = false;
-  //   }
-  // }
+      };
+    } else {
+      isEditing = false;
+    }
+  }
 
 
       // В родительском компоненте
@@ -57,9 +58,11 @@
 
         try {
             console.log('форма валидна',newClientEvent);
-            showNotificationEvent = true;
-            await addClientEvent(editingClientForEvents);;
+            
+            await addClientEvent(editingClientForEvents);
+            
             timeout = 3000;
+            showNotificationEvent = true;
         } catch (error) {
             console.error('Ошибка при отправке формы:', error);
         }
@@ -87,7 +90,7 @@
         .select();
 
       console.log("редактируем клиента с id - ", editingClientForEvents.id);
-      console.log("новое событие для клиента - ", newClientEvent);
+      console.log("showNotificationEvent статус - ", showNotificationEvent);
 
       if (addError) throw addError;
 
@@ -97,8 +100,9 @@
         description: "",
         status: "",
       };
-
-      alert("Клиента событие успешно добавлено");
+      
+      // alert("Клиента событие успешно добавлено");
+      showNotificationEvent = false;
       open = false;
 
       // Вызываем callback функцию
@@ -109,6 +113,22 @@
   }
 </script>
 
+
+{#if showNotificationEvent}
+  <div style="position:absolute;right:0px;top:30px;">
+      <ToastNotification
+          {timeout}
+          kind="success"
+          title="Отлично"
+          subtitle="Событие клиента успешно добавлено {timeout.toLocaleString()} ms."
+          caption={new Date().toLocaleString()}
+          on:close={(e) => {
+              timeout = undefined;
+              console.log(e.detail.timeout);
+          }}
+      />
+  </div>
+{/if}
 
 
 <!-- Добавление новго события -->
@@ -124,6 +144,11 @@
   on:close
   on:submit={handleSubmit}
 >
+
+
+
+
+
 
 <EventForm
 bind:client_events={newClientEvent}
