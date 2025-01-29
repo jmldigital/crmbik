@@ -9,6 +9,7 @@
     import { Modal } from 'carbon-components-svelte';
     import { supabase } from '../lib/supabase';
     import { clientStore } from './clientStore';
+    import { eventStore } from './Events/eventStore';
     import { onMount } from 'svelte';
 
     // Состояния
@@ -18,7 +19,8 @@
     // let currentClient = null;
     
     let User = "Unown";
-
+    
+    $: events = $eventStore.events;
 
     let currentClient = {
         first_name: "",
@@ -35,20 +37,6 @@
     loadClients();
 });
 
-    // Загрузка клиентов при инициализации
-    // async function loadClients() {
-    //   const { data, error } = await supabase
-    //     .from('clients')
-    //     .select('*')
-    //     .order('created_at', { ascending: false });
-      
-    //   if (error) {
-    //     console.error('Error loading clients:', error);
-    //     return;
-    //   }
-      
-    //   clients = data;
-    // }
 
 
     async function isAdmin(user) {
@@ -229,20 +217,6 @@ async function loadClients() {
   
 
 
-  // Операции с базой данных
-//   async function createClient(clientData) {
-//     const { error } = await supabase
-//       .from('clients')
-//       .insert([{
-//         ...clientData,
-//         created_at: new Date().toISOString(),
-//         user_id: 'jmldigital' // текущий пользователь
-//       }]);
-
-//     if (error) throw error;
-//   }
-
-
 
   async function createClient(clientData) {
     
@@ -274,21 +248,6 @@ async function loadClients() {
         const currentClients = $clientStore.clients;
         clientStore.setClients([data[0], ...currentClients]);
 
-
-        //   clients = [data[0], ...clients];
-
-        //   newClient = {
-        //       first_name: '',
-        //       last_name: '',
-        //       object: '',
-        //       phone: '',
-        //       source: '',
-        //       email: '',
-        //       status: 'Новый'
-        //   };
-        //   showNotification = true;
-        //   timeout = 3000;
-        //   open = false;
       } catch (err) {
           alert(err.message);
       }
@@ -331,6 +290,7 @@ async function loadClients() {
 
 <Header UserStatus={User}></Header>
 
+<p> событияяяя {events}</p>
   
   <div class="client-manager">
     <ClientActions on:add={handleAdd} />

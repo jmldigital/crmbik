@@ -66,13 +66,8 @@
                 Редактировать
             </button>
             <button on:click={
-
             () => expandedClient = expandedClient === row.id ? null : row.id
-
-            
-            
             }
-            
             >
                 {expandedClient === row.id ? 'Скрыть события' : 'Показать события'}
             </button>
@@ -84,7 +79,7 @@
 
 {#if expandedClient}
     <div class="events-section">
-       <p> "тут клиент" {expandedClient}</p>
+      
         <ClientEventManager clientId={expandedClient} />
     </div>
 {/if}

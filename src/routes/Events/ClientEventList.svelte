@@ -18,6 +18,8 @@
     ];
 </script>
 
+
+
 {#if $eventStore.loading}
     <div>Загрузка событий</div>
 {:else if $eventStore.error}
@@ -28,7 +30,7 @@
     <svelte:fragment slot="cell" let:row let:cell>
         {#if cell.key === 'actions'}
             <button on:click={() => dispatch('edit', row)}>
-                Редактировать
+                Edit Event
             </button>
         {:else}
             {row[cell.key]}

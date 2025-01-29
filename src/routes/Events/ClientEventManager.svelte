@@ -69,6 +69,8 @@
     async function handleEventSubmit(event) {
         const eventData = event.detail;
         eventData.client_id = clientId;
+
+        
     console.log('eventData событие которое мы пытаемся добавить',eventData);
         try {
             if (isEditing) {
@@ -100,9 +102,18 @@
     }
 
     async function updateEvent(eventData) {
+
+         // Создаем объект с полями, которые нужно обновить
+    let eventToUpdate = {
+      // Укажите только те поля, которые нужно обновить
+      description: eventData.description,
+      status: eventData.status,
+      // Добавьте другие поля, которые нужно обновить
+    };
+
         const { error } = await supabase
             .from('client_events')
-            .update(eventData)
+            .update(eventToUpdate)
             .eq('id', eventData.id);
 
         if (error) throw error;
@@ -135,6 +146,8 @@
         currentEvent = { ...event.detail };
         isEditing = true;
         isModalOpen = true;
+        console.log('нажали на событие-',currentEvent);
+
     }
 </script>
 
@@ -155,6 +168,7 @@
         passiveModal
         on:click:button--secondary={() => isModalOpen = false}
     >
+
         <ClientEventForm
             
             event={currentEvent}
