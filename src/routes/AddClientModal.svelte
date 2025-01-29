@@ -1,6 +1,6 @@
 <script>
   import { Modal, ToastNotification } from "carbon-components-svelte";
-  import { supabase } from '../lib/supabase'
+  import { supabase } from './supabase'
   import ClientForm from "./ClientForm.svelte";
 
   let showNotification = false;

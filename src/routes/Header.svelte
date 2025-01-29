@@ -18,8 +18,9 @@
 
      import Logout from "carbon-icons-svelte/lib/Logout.svelte";
      import { navigate } from "svelte-routing";
-
-     import { userStore } from './userStore';
+     import { adminStore } from './Stores/adminStore';
+     import { userStore } from './Stores/userStore';
+     import { eventStore } from './Stores/eventStore';
 
 
   import UserAvatarFilledAlt from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
@@ -27,14 +28,17 @@
   export let UserStatus;
 
 
-    import { supabase } from '../lib/supabase'
+    import { supabase } from './supabase'
   
     // export let User = 'unnown';
 
     let isSideNavOpen = false;
 
     $: currentUser = $userStore.user;
+    $: isAdmin = $adminStore.isAdmin;
 
+    $: UserStatus = isAdmin ? 'Admin' : 'Manager';
+    
 console.log('currentUser в хедере',currentUser);
 
   // Функция для выхода из системы
@@ -43,6 +47,7 @@ console.log('currentUser в хедере',currentUser);
     if (error) {
       console.error('Error signing out:', error);
     } else {
+      eventStore.clearEvents; // Очистка eventStore
       // Перенаправляем пользователя на главную страницу после выхода
       navigate('/');
     }

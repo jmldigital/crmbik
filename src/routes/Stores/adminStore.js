@@ -1,6 +1,6 @@
 // stores/adminStore.js
 import { writable } from 'svelte/store';
-import { supabase } from '../lib/supabase';  // путь к вашему supabase клиенту
+import { supabase } from '../supabase';  // путь к вашему supabase клиенту
 
 function createAdminStore() {
     const { subscribe, set } = writable({

@@ -3,7 +3,7 @@
     import { createEventDispatcher } from 'svelte';
     export let events = [];
     export let clientId;
-    import { eventStore } from './eventStore';
+    import { eventStore } from '../Stores/eventStore';
 
     const dispatch = createEventDispatcher();
 

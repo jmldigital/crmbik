@@ -8,7 +8,7 @@
     Form,
     ToastNotification
   } from "carbon-components-svelte";
-  import { supabase } from "../lib/supabase";
+  import { supabase } from "./supabase";
   import EventForm from "./EventForm.svelte";
 
   export let open = false;

@@ -9,7 +9,7 @@
     import { createEventDispatcher } from 'svelte';
     import { onMount } from 'svelte';
 
-    import { referenceStore } from './referenceStore';
+    import { referenceStore } from './Stores/referenceStore';
 
     const dispatch = createEventDispatcher();
     
@@ -24,7 +24,7 @@
     export let client = {
         first_name: "",
         last_name: "",
-        object: "",
+        object: objects[0]?.value || "",
         phone: "",
         source: sources[0]?.value || "", // Значение по умолчанию - первый элемент
         email: "",

@@ -1,6 +1,6 @@
 <script>
   import { onMount } from "svelte";
-  import { supabase } from "../lib/supabase";
+  import { supabase } from "./supabase";
 
   import AddClientModal from "./AddClientModal.svelte";
   import AddClientEventsModal from "./AddClientEventsModal.svelte";

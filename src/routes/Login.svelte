@@ -1,6 +1,6 @@
 <script>
   import { navigate } from "svelte-routing";
-  import { supabase } from '../lib/supabase';
+  import { supabase } from './supabase';
   import { onMount, onDestroy } from 'svelte';
   import { 
     Form, 
@@ -12,8 +12,8 @@
     Column,
     PasswordInput
   } from "carbon-components-svelte";
-  import { userStore } from './userStore';
-  import { adminStore } from './adminStore';
+  import { userStore } from './Stores/userStore';
+  import { adminStore } from './Stores/adminStore';
   
   let email = '';
   let password = '';
@@ -106,7 +106,7 @@
           {loading ? 'Вход...' : 'Войти'}
         </Button>
         <Button 
-          kind="tertiary"
+           kind="secondary"
           on:click={goToReg}
           disabled={loading}
         >

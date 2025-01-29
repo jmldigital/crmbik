@@ -11,7 +11,7 @@
         ToastNotification, 
         Accordion, 
         AccordionItem } from "carbon-components-svelte";
-    import { supabase } from '../lib/supabase'
+    import { supabase } from './supabase'
   
     export let client = {};
     export let ShowButton = true;

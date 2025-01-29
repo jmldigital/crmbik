@@ -1,14 +1,17 @@
 <script>
   import { Modal } from "carbon-components-svelte";
 
-  import { supabase } from "../../lib/supabase";
-  import { eventStore } from "./eventStore";
-  import { clientStore } from "../clientStore";
+  import { supabase } from "../supabase";
+  import { eventStore } from "../Stores/eventStore";
+  import { clientStore } from "../Stores/clientStore";
+
+//   import { loadClients } from '../ClientManager.svelte';
 
   import { onMount } from "svelte";
 
   import ClientEventForm from "./ClientEventForm.svelte";
   import ClientEventsList from "./ClientEventList.svelte";
+  import { adminStore } from '../Stores/adminStore';
 
   export let clientId;
 
@@ -19,6 +22,7 @@
   let formRef;
 
   $: clients = $clientStore.clients;
+  $: events = $eventStore.events;
 
   // Функция для преобразования даты в понятный для человека формат
   function formatDateToHumanReadable(date) {
@@ -26,9 +30,15 @@
     return new Date(date).toLocaleString();
   }
 
+
+
+
   onMount(() => {
     loadEvents();
   });
+
+
+
 
   async function loadEvents() {
     eventStore.setLoading(true);
@@ -80,21 +90,49 @@
 
 
   async function createEvent(eventData) {
+    try {
+        const currentClient = clients.find((client) => client.id === clientId);
 
-    const currentClient = clients.find((client) => client.id === clientId);
+        // const { data: userData } = await supabase.auth.getUser();
+        // if (!userData) throw new Error("Пользователь не аутентифицирован");
 
-    const { data: userData } = await supabase.auth.getUser();
-    if (!userData) throw new Error("Пользователь не аутентифицирован");
+        // Создаем событие и получаем его данные одной операцией
+        const { data, error: addError } = await supabase
+            .from("client_events")
+            .insert([{
+                ...eventData,
+                manager_id: currentClient.manager_id,
+                
+            }])
+            .select();
 
-    const { error } = await supabase.from("client_events").insert([
-      {
-        ...eventData,
-        manager_id: currentClient.manager_id,
-      },
-    ]);
+        if (addError) throw addError;
 
-    if (error) throw error;
-  }
+        eventStore.setEvents(events);
+
+     // Если пользователь админ, перезагружаем все события
+     if ($adminStore.isAdmin) {
+
+        await eventStore.loadAllEvents();
+        await clientStore.loadClients(); // без параметров
+
+            console.log('перезагружаем под админом все события',events);
+
+        } else {
+            // Для не-админа просто добавляем новое событие в store
+            const currentEvents = $eventStore.events;
+            eventStore.setEvents([data[0], ...currentEvents]);
+        }
+
+        return data[0]; // возвращаем созданное событие
+
+    } catch (error) {
+        eventStore.setError(error.message);
+        console.error("Error creating event:", error);
+        throw error;
+    }
+}
+
 
   async function updateEvent(eventData) {
     // Создаем объект с полями, которые нужно обновить

@@ -7,7 +7,7 @@
     Modal,
     Form,
   } from "carbon-components-svelte";
-  import { supabase } from "../lib/supabase";
+  import { supabase } from "./supabase";
 
   export let open = false;
   export let client_events = {};

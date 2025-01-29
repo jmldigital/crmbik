@@ -1,7 +1,7 @@
 <script>
   import { onMount } from 'svelte';
   import { navigate } from "svelte-routing";
-  import { supabase } from '../lib/supabase';
+  import { supabase } from './supabase';
   import { 
     Form, 
     TextInput, 
@@ -123,7 +123,7 @@
 
         <Button 
           type="submit" 
-          loading={isLoading}
+         
         >
           Зарегистрироваться
         </Button>

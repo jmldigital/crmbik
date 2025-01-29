@@ -7,34 +7,37 @@
     import Header from "./Header.svelte";
 
     import { Modal } from 'carbon-components-svelte';
-    import { supabase } from '../lib/supabase';
-    import { clientStore } from './clientStore';
-    import { eventStore } from './Events/eventStore';
+    import { supabase } from './supabase';
+    import { clientStore } from './Stores/clientStore';
+    import { eventStore } from './Stores/eventStore';
     import { onMount } from 'svelte';
-    import { adminStore } from './adminStore';
-    import { referenceStore } from './referenceStore';
+    import { adminStore } from './Stores/adminStore';
+    import { referenceStore } from './Stores/referenceStore';
 
-    import { userStore } from './userStore';
+    import { userStore } from './Stores/userStore';
 
     // Состояния
     let clients = [];
     let isModalOpen = false;
     let isEditing = false;
+    let lastEventStatus = null;
     // let currentClient = null;
     
     let User = "Unown";
     
     // Используйте данные из store
     
-    $: events = $eventStore.events;
+    $: allEvents = $eventStore.events;
     $: isAdmin = $adminStore.isAdmin;
-    $: User = $adminStore.isAdmin ? "Admin" : "Менеджер";
+    $: user = $userStore.user;
+    $: userId = user?.id;
 
 
       // Получаем данные из store
-   $: sources = $referenceStore.sources;
+    $: sources = $referenceStore.sources;
     $: statuses = $referenceStore.statuses;
     $: objects = $referenceStore.objects;
+    $: clients = $clientStore.clients;
 
 
     let currentClient = {
@@ -48,83 +51,99 @@
     };
 
 
- onMount(async () => {
-        // Просто загружаем клиентов, статус админа уже известен из store
-        await loadClients();
+
+
+    onMount(async () => {
+        try {
+            // Теперь просто вызываем loadClients из store без параметров
+            await clientStore.loadClients();
+        } catch (error) {
+            console.error('Error loading clients:', error);
+        }
     });
 
-    // Получаем имя и фамилию менеджера для клиента
-    async function getManagerEmail(managerId) {
-    const { data, error } = await supabase
-      .from("managers")
-      .select("manager_first_name, manager_last_name")
-      .eq("id", managerId)
-      .single();
 
-    if (error) {
-      console.error("Error fetching manager name:", error);
-      return null;
-    }
+  
 
-    // Объединяем имя и фамилию в одну строку
-    return `${data.manager_first_name} ${data.manager_last_name}`;
-  }
+
+//     // Получаем имя и фамилию менеджера для клиента
+//     async function getManagerEmail(managerId) {
+//     const { data, error } = await supabase
+//       .from("managers")
+//       .select("manager_first_name, manager_last_name")
+//       .eq("id", managerId)
+//       .single();
+
+//     if (error) {
+//       console.error("Error fetching manager name:", error);
+//       return null;
+//     }
+
+//     // Объединяем имя и фамилию в одну строку
+//     return `${data.manager_first_name} ${data.manager_last_name}`;
+//   }
 
 
    // Функция для преобразования даты в понятный для человека формат
-   function formatDateToHumanReadable(date) {
-    // Пример форматирования даты
-    return new Date(date).toLocaleString();
-  }
+//    function formatDateToHumanReadable(date) {
+//     // Пример форматирования даты
+//     return new Date(date).toLocaleString();
+//   }
 
 
 
-  async function loadClients() {
-    clientStore.setLoading(true);
-    try {
-        // Получаем текущего пользователя
-        const { data: userData, error: authError } = await supabase.auth.getUser();
-        if (authError) throw authError;
-        if (!userData) throw new Error("No user data found.");
+//    async function loadClients() {
+//     clientStore.setLoading(true);
 
+//         try {
+//         // Если админ, сначала загружаем все события
+//         if (isAdmin) {
+//             await eventStore.loadAllEvents();
+//         }
 
-        // Формируем базовый запрос
-        let query = supabase
-            .from("clients")
-            .select("*")
-            .order('created_at', { ascending: false });
+//         // Формируем базовый запрос
+//         let query = supabase
+//             .from("clients")
+//             .select("*")
+//             .order('created_at', { ascending: false });
 
-        // Добавляем фильтр только для менеджера
-        if (!isAdmin) {
-            query = query.eq('manager_id', userData.user.id);
-        }
+//         // Добавляем фильтр только для менеджера
+//         if (!isAdmin) {
+//             query = query.eq('manager_id', userId);
+//         }
 
-        // Выполняем запрос
-        const { data: clientsData, error: clientsError } = await query;
-        if (clientsError) throw clientsError;
+//         // Выполняем запрос
+//         const { data: clientsData, error: clientsError } = await query;
+//         if (clientsError) throw clientsError;
 
-        // Для админа добавляем информацию о менеджерах
-        const processedClients = isAdmin 
-            ? await Promise.all(
-                clientsData.map(async (client) => ({
-                    ...client,
-                    Manager: await getManagerEmail(client.manager_id)
-                }))
-            )
-            : clientsData;
+//         // Для админа добавляем информацию о менеджерах
+//            // Для админа добавляем информацию о менеджерах и считаем события
+//            const processedClients = isAdmin 
+//             ? await Promise.all(
+//                 clientsData.map(async (client) => ({
+//                     ...client,
+//                     Manager: await getManagerEmail(client.manager_id),
+//                     // Используем события из store
+//                     Touches: $eventStore.events.filter(e => e.client_id === client.id).length,
+//                     lastEventStatus: $eventStore.events.filter(e => e.client_id === client.id)[0]?.status || 'Нет событий',
+//                 }))
+//             )
+//             : clientsData;
 
-        // Обновляем store
-        clientStore.setClients(processedClients);
+//         clientStore.setClients(processedClients);
 
-        console.log('$adminStore.isAdmin ',$adminStore.isAdmin);
+//         // Обновляем store
+//         clientStore.setClients(processedClients);
 
-    } catch (error) {
-        clientStore.setError(error.message);
-        console.error("Error loading clients:", error);
-    } finally {
-        clientStore.setLoading(false);
-    }
-}
+//         console.log('$adminStore.isAdmin ',$adminStore.isAdmin);
+
+//     } catch (error) {
+//         clientStore.setError(error.message);
+//         console.error("Error loading clients:", error);
+//     } finally {
+//         clientStore.setLoading(false);
+//     }
+// }
 
 
 
@@ -254,10 +273,10 @@
     const clientData = event.detail;
     
     if (isEditing) {
-        console.log('isEditing Update',isEditing);
+        console.log('isEditing Update',clientData);
       await updateClient(clientData);
     } else {
-        console.log('isEditing Create',isEditing);  
+        console.log('isEditing Create',clientData);  
       await createClient(clientData);
     }
     
@@ -273,8 +292,8 @@
     
       try {
         clientStore.setLoading(true);
-          const { data: userData } = await supabase.auth.getUser();
-          const userId = userData.user.id;
+        //   const { data: userData } = await supabase.auth.getUser();
+          const userId = user.id;
 
           const { data: managerData, error: managerError } = await supabase
               .from('managers')
@@ -315,11 +334,11 @@
         clientStore.setLoading(true);
 
 // Деструктурируем объект, исключая свойство Manager
-const { Manager, ...clientDataWithoutManager } = clientData;
+const { Manager, Touches, lastEventStatus, ...clientDataToUpdate } = clientData;
 
         const { error } = await supabase
             .from('clients')
-            .update(clientDataWithoutManager)
+            .update(clientDataToUpdate)
             .eq('id', clientData.id);
 
         if (error) throw error;
@@ -345,7 +364,9 @@ const { Manager, ...clientDataWithoutManager } = clientData;
 
 
 
-<Header UserStatus={User}></Header>
+<Header UserStatus={user}></Header>
+ <p></p>
+ <!-- <p>{User.id}</p> -->
  
   <div class="client-manager">
     <ClientActions on:add={handleAdd} />

@@ -3,10 +3,11 @@
     import { onMount } from "svelte";
     import { DataTable } from 'carbon-components-svelte';
     import { createEventDispatcher } from 'svelte';
-    import { clientStore } from './clientStore'; // Исправлен путь импорта
+    import { clientStore } from './Stores/clientStore'; // Исправлен путь импорта
+    import { eventStore } from './Stores/eventStore'; // Исправлен путь импорта
     import ClientEventManager from './Events/ClientEventManager.svelte';
 
-    import { adminStore } from './adminStore';
+    import { adminStore } from './Stores/adminStore';
     
     let expandedClient = null;
 
@@ -18,7 +19,8 @@
     
     // Подписываемся на изменения store
     $: clients = $clientStore.clients;
-  
+    
+    $: events = $eventStore.events;
     
 
     $: headers = $adminStore.isAdmin 
@@ -48,47 +50,7 @@
         { key: 'actions', value: '' }
       ];
 
-
-
-
-    // const headers = [
-    //     { key: 'first_name', value: 'Имя' },
-    //     { key: 'last_name', value: 'Фамилия' },
-    //     { key: 'object', value: 'Объект' },
-    //     { key: 'phone', value: 'Телефон' },
-    //     { key: 'source', value: 'Источник' },
-    //     { key: 'status', value: 'Статус' },
-    //     { key: 'actions', value: '' }
-    // ];
-
-    // Для отладки
-    // $: {
-    //     console.log('clients updated:', clients);
-    //     console.log('store state:', $clientStore);
-    // }
 </script>
-
-<!-- {#if $clientStore.loading}
-    <div>Загрузка...</div>
-{:else if $clientStore.error}
-    <div>Ошибка: {$clientStore.error}</div>
-{:else} -->
-
-    <!-- <DataTable
-        {headers}
-        rows={clients}
-    >
-        <svelte:fragment slot="cell" let:row let:cell>
-            {#if cell.key === 'actions'}
-                <button on:click={() => dispatch('edit', row)}>
-                    Редактировать
-                </button>
-            {:else}
-                {row[cell.key]}
-            {/if}
-        </svelte:fragment>
-    </DataTable> -->
-<!-- {/if} -->
 
 
 

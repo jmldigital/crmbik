@@ -1,6 +1,6 @@
 // stores/userStore.js
 import { writable } from 'svelte/store';
-import { supabase } from '../lib/supabase';
+
 
 function createUserStore() {
     const { subscribe, set, update } = writable({
