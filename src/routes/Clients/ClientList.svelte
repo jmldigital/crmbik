@@ -274,7 +274,7 @@ stickyHeader>
       on:input={handleSearch}
     />
       
-      <Button   >Добавить клиента</Button>
+      
     </ToolbarContent>
   </Toolbar>
 
