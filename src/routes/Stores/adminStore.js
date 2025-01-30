@@ -1,6 +1,6 @@
 // stores/adminStore.js
 import { writable } from 'svelte/store';
-import { supabase } from '../supabase';  // путь к вашему supabase клиенту
+import { supabase } from '../supabase';
 
 function createAdminStore() {
     const { subscribe, set } = writable({
@@ -8,12 +8,13 @@ function createAdminStore() {
         isLoading: true
     });
 
-    // Функция проверки статуса админа через RPC
     async function checkAdminStatus() {
         try {
             const { data, error } = await supabase.rpc("is_admin");
             
             if (error) throw error;
+            
+            console.log('Admin check response:', data);
             set({ isAdmin: data, isLoading: false });
         } catch (error) {
             console.error("Error checking admin role:", error);
@@ -21,11 +22,18 @@ function createAdminStore() {
         }
     }
 
+    // Добавляем только слушатель события загрузки страницы
+    if (typeof window !== 'undefined') {
+        window.addEventListener('load', () => {
+            console.log('Page reloaded - checking admin status');
+            checkAdminStatus();
+        });
+    }
+
     return {
         subscribe,
         checkAdminStatus,
-        // Добавляем метод сброса если нужно
-        // reset: () => set({ isAdmin: false, isLoading: false })
+        reset: () => set({ isAdmin: false, isLoading: true })
     };
 }
 

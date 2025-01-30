@@ -38,16 +38,29 @@
     $: userEmail = $userStore.user?.email || 'Загрузка...';
     $: isAdmin = $adminStore.isAdmin;
 
-    $: UserStatus = isAdmin ? 'Admin' : 'Manager';
+    // $: UserStatus = isAdmin ? 'Admin' : 'Manager';
 
     // $: isLoading = $adminStore.isLoading;
 
-$: UserStatus = isAdmin ? 'Admin' : 'Manager';
+    $: {
+      UserStatus = $adminStore.isAdmin ? 'Admin' : 'Manager';
+        console.log('Status updated:', UserStatus);
+    }
 
-// onMount(async () => {
-//     // Инициализируем проверку админ статуса при монтировании компонента
-//     await adminStore.initialize();
+//     onMount(async () => {
+//     try {
+//         // Сначала проверяем пользователя
+//         await userStore.checkAndSetUser();
+//         // Потом проверяем статус админа
+//         await adminStore.checkAdminStatus();
+        
+//         console.log('After all checks - UserStatus:', UserStatus);
+//     } catch (error) {
+//         console.error('Error during initialization:', error);
+//     }
 // });
+
+
     
 console.log('currentUser в хедере',userEmail);
 
@@ -57,11 +70,21 @@ console.log('currentUser в хедере',userEmail);
     if (error) {
       console.error('Error signing out:', error);
     } else {
-      eventStore.clearEvents; // Очистка eventStore
+      eventStore.clearEvents; 
+      userStore.setUser(null);// Очистка eventStore
+      adminStore.reset();
+
       // Перенаправляем пользователя на главную страницу после выхода
       navigate('/');
     }
   }
+
+
+   
+
+
+
+
 
   function toggleTableSettings() {
         tableSettingsStore.update(state => ({
@@ -101,7 +124,7 @@ console.log('currentUser в хедере',userEmail);
     aria-label="Notifications"
     icon={UserAvatarFilledAlt} 
     >
-    <span> Привет</span>
+    
   </HeaderGlobalAction>
 
 

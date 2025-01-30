@@ -81,6 +81,9 @@ let filteredClients = clients;
       selectedRowIds = JSON.parse(savedColumns);
     }
   });
+
+
+
 // { key: 'first_name', value: 'Имя' },
   // Определяем заголовки после того, как adminStore будет доступен
   $: {
@@ -271,7 +274,7 @@ stickyHeader>
       on:input={handleSearch}
     />
       
-      
+      <Button   >Добавить клиента</Button>
     </ToolbarContent>
   </Toolbar>
 

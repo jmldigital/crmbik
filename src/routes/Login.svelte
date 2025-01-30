@@ -46,10 +46,10 @@
       if (error) throw error;
       
       // Сохраняем пользователя в store
-      userStore.setUser(user);
+       userStore.setUser(user);
       
-      // Проверяем статус админа
-      await adminStore.checkAdminStatus();
+      // // Проверяем статус админа
+         await adminStore.checkAdminStatus();
       
       console.log('Login successful');
       navigate('/clients');
