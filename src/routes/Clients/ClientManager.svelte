@@ -3,18 +3,18 @@
     import ClientForm from './ClientFormNew.svelte';
     import ClientList from './ClientList.svelte';
 
-    import ClientActions from './Actions.svelte';
-    import Header from "./Header.svelte";
+    import ClientActions from '../Actions.svelte';
+    import Header from "../Header.svelte";
 
     import { Modal } from 'carbon-components-svelte';
-    import { supabase } from './supabase';
-    import { clientStore } from './Stores/clientStore';
-    import { eventStore } from './Stores/eventStore';
+    import { supabase } from '../supabase';
+    import { clientStore } from '../Stores/clientStore';
+    import { eventStore } from '../Stores/eventStore';
     import { onMount } from 'svelte';
-    import { adminStore } from './Stores/adminStore';
-    import { referenceStore } from './Stores/referenceStore';
+    import { adminStore } from '../Stores/adminStore';
+    import { referenceStore } from '../Stores/referenceStore';
 
-    import { userStore } from './Stores/userStore';
+    import { userStore } from '../Stores/userStore';
 
     // Состояния
     let clients = [];

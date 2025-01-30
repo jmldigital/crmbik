@@ -21,10 +21,11 @@
      import { adminStore } from './Stores/adminStore';
      import { userStore } from './Stores/userStore';
      import { eventStore } from './Stores/eventStore';
+     import { tableSettingsStore } from './Stores/tableSettingsStore';
 
 
   import UserAvatarFilledAlt from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
-
+  import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
   export let UserStatus;
 
 
@@ -53,6 +54,13 @@ console.log('currentUser в хедере',currentUser);
     }
   }
 
+  function toggleTableSettings() {
+        tableSettingsStore.update(state => ({
+            ...state,
+            showColumnSelector: !state.showColumnSelector
+        }));
+    }
+
 
 </script>
 
@@ -72,11 +80,17 @@ console.log('currentUser в хедере',currentUser);
 
   <HeaderUtilities>
 
+    <HeaderGlobalAction
+    iconDescription="Settings"
+    tooltipAlignment="start"
+    icon={SettingsAdjust}
+    on:click={toggleTableSettings}
+  />
+
     <HeaderGlobalAction iconDescription={UserStatus} 
     title="Notifications"
     aria-label="Notifications"
     icon={UserAvatarFilledAlt} 
-    
     >
     <span> Привет</span>
   </HeaderGlobalAction>
@@ -88,6 +102,9 @@ console.log('currentUser в хедере',currentUser);
       icon={Logout}
       on:click={handleLogout}
     />
+
+
+  
     
   </HeaderUtilities>
 

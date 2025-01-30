@@ -4,7 +4,7 @@
   import Clients from "./routes/Clients.svelte";
   import '../src/carbon.scss';
   import Login from "./routes/Login.svelte";
-  import ClientManager from './routes/ClientManager.svelte';
+  import ClientManager from './routes/Clients/ClientManager.svelte';
 
   console.log('App.svelte: Component initialized');
   

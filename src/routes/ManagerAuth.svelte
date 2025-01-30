@@ -1,6 +1,6 @@
 <script>
     import { TextInput, Button, Form } from 'carbon-components-svelte';
-    import { supabase } from './Stores/supabase';
+    import { supabase } from './supabase';
     import { navigate } from 'svelte-routing';
   
     let email = '';

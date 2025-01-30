@@ -9,7 +9,7 @@
     import { createEventDispatcher } from 'svelte';
     import { onMount } from 'svelte';
 
-    import { referenceStore } from './Stores/referenceStore';
+    import { referenceStore } from '../Stores/referenceStore';
 
     const dispatch = createEventDispatcher();
     
