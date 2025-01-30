@@ -13,6 +13,7 @@
     import { onMount } from 'svelte';
     import { adminStore } from '../Stores/adminStore';
     import { referenceStore } from '../Stores/referenceStore';
+    import { DataTableSkeleton } from "carbon-components-svelte";
 
     import { userStore } from '../Stores/userStore';
 
@@ -381,7 +382,7 @@ const { Manager, Touches, lastEventStatus, ...clientDataToUpdate } = clientData;
     <ClientActions on:add={handleAdd} />
     
     {#if $clientStore.loading}
-    <div>Загруз...</div>
+    <DataTableSkeleton />
 {:else if $clientStore.error}
     <div>Error: {$clientStore.error}</div>
 {:else}

@@ -64,22 +64,44 @@
     
 console.log('currentUser в хедере',userEmail);
 
-  // Функция для выхода из системы
+  // // Функция для выхода из системы
+  // async function handleLogout() {
+  //   const { error } = await supabase.auth.signOut();
+  //   if (error) {
+  //     console.error('Error signing out:', error);
+  //   } else {
+  //     eventStore.clearEvents; 
+  //     userStore.setUser(null);// Очистка eventStore
+  //     adminStore.reset();
+
+  //     // Перенаправляем пользователя на главную страницу после выхода
+  //     navigate('/');
+  //   }
+  // }
+
+
   async function handleLogout() {
+  try {
+    // Очищаем localStorage вручную
+    localStorage.removeItem('sb-irjkppabtcmhrxvtkkyy-auth-token');
+
+    // Пытаемся выйти через Supabase (на случай, если сессия всё ещё активна)
     const { error } = await supabase.auth.signOut();
     if (error) {
-      console.error('Error signing out:', error);
-    } else {
-      eventStore.clearEvents; 
-      userStore.setUser(null);// Очистка eventStore
-      adminStore.reset();
-
-      // Перенаправляем пользователя на главную страницу после выхода
-      navigate('/');
+      console.warn('Error during signOut (ignoring):', error);
     }
+
+    // Очищаем состояние приложения
+    eventStore.clearEvents();
+    userStore.setUser(null);
+    adminStore.reset();
+
+    // Перенаправляем пользователя на главную страницу
+    navigate('/');
+  } catch (err) {
+    console.error('Error during forced logout:', err);
   }
-
-
+}
    
 
 
