@@ -1,10 +1,10 @@
 <script>
-  import { Modal } from "carbon-components-svelte";
-
+  import { Modal,Button } from "carbon-components-svelte";
+  import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
   import { supabase } from "../supabase";
   import { eventStore } from "../Stores/eventStore";
   import { clientStore } from "../Stores/clientStore";
-
+  import Add from "carbon-icons-svelte/lib/Add.svelte";
 //   import { loadClients } from '../ClientManager.svelte';
 
   import { onMount } from "svelte";
@@ -29,9 +29,6 @@
     // Пример форматирования даты
     return new Date(date).toLocaleString();
   }
-
-
-
 
   onMount(() => {
     loadEvents();
@@ -181,7 +178,17 @@
 </script>
 
 <div class="events-manager">
-  <button on:click={handleAdd}>Добавить событие</button>
+  <Button
+  
+  
+  icon={Add}
+  on:click={handleAdd}
+  kind="secondary"
+>
+
+Добавить событие</Button>
+
+
 
   <ClientEventsList {events} {clientId} on:edit={handleEdit} />
 

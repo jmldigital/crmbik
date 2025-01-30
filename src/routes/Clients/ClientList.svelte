@@ -1,5 +1,14 @@
 <script>
-  import { DataTable, Tag, Button } from 'carbon-components-svelte';
+  import { DataTable, Button, 
+    Tag,
+    Toolbar,
+    ToolbarContent,
+    ToolbarSearch,
+    ToolbarMenu,
+    ToolbarMenuItem,
+  } from 'carbon-components-svelte';
+
+  
   import { createEventDispatcher } from 'svelte';
   import { clientStore } from '../Stores/clientStore';
   import { eventStore } from '../Stores/eventStore';
@@ -9,9 +18,50 @@
   import { onMount } from 'svelte';
   import { tableSettingsStore } from '../Stores/tableSettingsStore';
   
+
+  import Events from 'carbon-icons-svelte/lib/Events.svelte';
+  import Eyedropper from 'carbon-icons-svelte/lib/Eyedropper.svelte';
+  import Close from 'carbon-icons-svelte/lib/Close.svelte';
+  
+  let clients = [];
+  
+  // Подписываемся на изменения store
+  $: isAdmin = $adminStore.isAdmin;
+  $: clients = $clientStore.clients;
+  $: events = $eventStore.events;
+
+// Добавляем состояние для фильтрации
+let searchTerm = "";
+let filteredClients = clients;
+
+
+//   // Реактивное выражение для фильтрации клиентов
+  $: {
+    filteredClients = clients.filter(client => {
+      const searchFields = [
+        client.first_name,
+        client.last_name,
+        client.object,
+        client.phone,
+        client.email,
+        client.status,
+        client.source,
+        client.lastEventStatus,
+        isAdmin ? client.Manager : '', // Включаем поле Manager только для админа
+      ].filter(Boolean); // Удаляем пустые значения
+
+      return searchFields
+        .join(' ')
+        .toLowerCase()
+        .includes(searchTerm.toLowerCase());
+    });
+  }
+
+
+
   let expandedClient = null;
   const dispatch = createEventDispatcher();
-  let clients = [];
+ 
   let showColumnSelector = false;
   
   // Инициализируем переменные
@@ -19,9 +69,7 @@
   let selectedRowIds = [];
   let headers = [];
   
-  // Подписываемся на изменения store
-  $: clients = $clientStore.clients;
-  $: events = $eventStore.events;
+
 
       // Подписываемся на store
       $: showColumnSelector = $tableSettingsStore.showColumnSelector;
@@ -33,7 +81,7 @@
       selectedRowIds = JSON.parse(savedColumns);
     }
   });
-
+// { key: 'first_name', value: 'Имя' },
   // Определяем заголовки после того, как adminStore будет доступен
   $: {
     if ($adminStore) {
@@ -45,17 +93,18 @@
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },
             { id: 'status', name: 'Статус', key: 'status', value: 'Статус' },
-            { id: 'Touches', name: 'Touches', key: 'Touches', value: '', width: "40px" },
-            { id: 'lastEventStatus', name: 'Последнее', key: 'lastEventStatus', value: 'Последнее' },
-            { id: 'actions', name: 'Действия', key: 'actions', value: '' }
+            { id: 'Touches', name: 'Касаний', key: 'Touches', value: 'Touches', width: "40px" },
+            { id: 'lastEventStatus', name: 'Текущий статус', key: 'lastEventStatus', value: 'Текущий статус' },
+            { id: 'actions', name: 'Иконки', key: 'actions', value: 'Действия' }
         ]
         : [
+            { id: 'first_name', name: 'Имя', key: 'first_name', value: 'Имя' },
             { id: 'last_name', name: 'Фамилия', key: 'last_name', value: 'Фамилия' },
             { id: 'object', name: 'Объект', key: 'object', value: 'Объект' },
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },
             { id: 'status', name: 'Статус', key: 'status', value: 'Статус' },
-            { id: 'actions', name: 'Действия', key: 'actions', value: '' }
+            { id: 'actions', name: 'Иконки', key: 'actions', value: 'Действия' }
         ];
 
       // Инициализируем выбранные колонки, если они еще не инициализированы
@@ -130,6 +179,13 @@
   function toggleColumnSelector() {
       showColumnSelector = !showColumnSelector;
   }
+
+
+  // Функция для обработки изменений в поисковой строке
+  function handleSearch(event) {
+    searchTerm = event.target.value;
+  }
+
 </script>
 <!-- <div class="button-container">
   <Button 
@@ -160,20 +216,41 @@
   </div>
 {/if}
 
+
+
 {#if expandedClient}
-    <div class="events-section">
+    
       
         <ClientEventManager clientId={expandedClient} />
-    </div>
+    
 {/if}
 
+<div class="divider">
+
+</div>
 <!-- Основная таблица с клиентами -->
-<DataTable {headers} rows={clients} stickyHeader>
+<!-- rows={clients}  -->
+
+<!-- rows={filteredClients} -->
+<DataTable 
+
+sortable
+{headers} 
+
+rows={filteredClients}
+
+stickyHeader>
   <svelte:fragment slot="cell" let:row let:cell>
       {#if cell.key === 'actions'}
-          <button on:click={() => expandedClient = expandedClient === row.id ? null : row.id}>
-              {expandedClient === row.id ? 'Скрыть' : 'Показать'}
-          </button>
+      <Button
+      kind="ghost"
+      size="small"
+      tooltipPosition="left"
+      tooltipAlignment="end"
+      iconDescription={expandedClient === row.id ? 'Скрыть события' : 'Показать события'}
+      icon={expandedClient === row.id ? Close : Events}
+      on:click={() => expandedClient = expandedClient === row.id ? null : row.id}
+    />
           <button on:click={() => dispatch('edit', row)}>
               <Edit16 />
           </button>
@@ -183,6 +260,22 @@
           {cell.value}
       {/if}
   </svelte:fragment>
+
+
+  <Toolbar>
+    <ToolbarContent>
+      <ToolbarSearch
+      persistent
+      placeholder="Поиск по всем полям..."
+      bind:value={searchTerm}
+      on:input={handleSearch}
+    />
+      
+      
+    </ToolbarContent>
+  </Toolbar>
+
+
 </DataTable>
 
 
@@ -196,5 +289,11 @@
 
   .column-selector {
     margin-top: 1rem;
+  }
+
+  
+
+  .divider {
+    height:5vh;
   }
 </style>

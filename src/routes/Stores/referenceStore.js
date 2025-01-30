@@ -1,13 +1,15 @@
 // stores/referenceStore.js
 import { writable } from 'svelte/store';
 
+
 const initialData = {
     sources: [
-        { value: "Telegram", text: "Telegram" },
-        { value: "VK", text: "VK" },
-        { value: "Наружка", text: "Наружка" },
-        { value: "Шел мимо", text: "Шел мимо" },
-        { value: "Другой источник", text: "Другой источник" }
+        { value: "Заявка с сайта", text: "Заявка с сайта" },
+        { value: "Зашел с улицы", text: "Зашел с улицы" },
+        { value: "Позвонил через сайт", text: "Позвонил через сайт" },
+        { value: "Звонок на телефон", text: "Звонок на телефон" },
+        { value: "Клиент агенства", text: "Клиент агенства" },
+        { value: "Постоянный клиент", text: "Постоянный клиент" }
     ],
     statuses: [
         { value: "Новый", text: "Новый" },
@@ -15,9 +17,10 @@ const initialData = {
         { value: "Завершен", text: "Завершен" }
     ],
     objects: [
-        { value: "ЮЗ-Б", text: "ЮЗ-Б" },
-        { value: "ЮЗ-А Закончен", text: "ЮЗ-А Закончен" },
-        { value: "БИК TOWER", text: "БИК TOWER" }
+        { value: "ЮЗ Строится", text: "ЮЗ Строится" },
+        { value: "ЮЗ Готов", text: "ЮЗ Готов" },
+        { value: "БТ-1", text: "БТ-1" },
+        { value: "БТ-2", text: "БТ-2" }
     ]
 };
 

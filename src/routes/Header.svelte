@@ -22,7 +22,7 @@
      import { userStore } from './Stores/userStore';
      import { eventStore } from './Stores/eventStore';
      import { tableSettingsStore } from './Stores/tableSettingsStore';
-
+     import { onMount } from "svelte";
 
   import UserAvatarFilledAlt from "carbon-icons-svelte/lib/UserAvatarFilledAlt.svelte";
   import SettingsAdjust from "carbon-icons-svelte/lib/SettingsAdjust.svelte";
@@ -35,12 +35,21 @@
 
     let isSideNavOpen = false;
 
-    $: currentUser = $userStore.user;
+    $: userEmail = $userStore.user?.email || 'Загрузка...';
     $: isAdmin = $adminStore.isAdmin;
 
     $: UserStatus = isAdmin ? 'Admin' : 'Manager';
+
+    // $: isLoading = $adminStore.isLoading;
+
+$: UserStatus = isAdmin ? 'Admin' : 'Manager';
+
+// onMount(async () => {
+//     // Инициализируем проверку админ статуса при монтировании компонента
+//     await adminStore.initialize();
+// });
     
-console.log('currentUser в хедере',currentUser);
+console.log('currentUser в хедере',userEmail);
 
   // Функция для выхода из системы
   async function handleLogout() {
@@ -69,13 +78,13 @@ console.log('currentUser в хедере',currentUser);
     <SkipToContent />
   </svelte:fragment>
   <HeaderNav>
-    <HeaderNavItem text={currentUser.email} />
+    <HeaderNavItem text={userEmail} />
     <HeaderNavItem  text={UserStatus} />
-    <HeaderNavMenu text="Menu">
+    <!-- <HeaderNavMenu text="Menu">
       <HeaderNavItem href="/" text="Link 1" />
       <HeaderNavItem href="/" text="Link 2" />
       <HeaderNavItem href="/" text="Link 3" />
-    </HeaderNavMenu>
+    </HeaderNavMenu> -->
   </HeaderNav>
 
   <HeaderUtilities>
@@ -120,7 +129,15 @@ console.log('currentUser в хедере',currentUser);
     </Row>
   </Grid>
 </Content>
+
+<style>
   
+  :global(.bx--header) {
+    background-color: #212533!important;
+    border-bottom: 1px solid #303f9f;
+  }
+  
+  </style>
 
 
   

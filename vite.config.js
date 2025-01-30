@@ -8,7 +8,7 @@ export default defineConfig({
 })
 
 
-// .для деплоя
+// // .для деплоя
 // export default defineConfig({
 //   plugins: [svelte()],
 //   base: '/crmbik/', // Правильно - соответствует имени вашего репозитория
