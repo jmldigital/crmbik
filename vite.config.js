@@ -11,5 +11,5 @@ import { svelte } from '@sveltejs/vite-plugin-svelte'
 // .для деплоя
 export default defineConfig({
   plugins: [svelte()],
-  base: '/crmbik/', // Правильно - соответствует имени вашего репозитория
+  base: '/crmbik', // Правильно - соответствует имени вашего репозитория
 })
