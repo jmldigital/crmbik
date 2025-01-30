@@ -4,7 +4,7 @@ import { supabase } from '../supabase';
 
 function createAdminStore() {
     const { subscribe, set } = writable({
-        isAdmin: false,
+        isAdmin: true,
         isLoading: true
     });
 

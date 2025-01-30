@@ -6,8 +6,8 @@ import Clients from './Clients.svelte'
 
 
 
-// export const routes = {
-//   '/': Register,
-//   '/login': Login,
-//   '/clients': Clients
-// }
+export const routes = {
+  '/': Register,
+  '/login': Login,
+  '/clients': Clients
+}

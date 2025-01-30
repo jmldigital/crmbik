@@ -16,7 +16,7 @@
   console.log('App.svelte: Base path:', base);
 </script>
 
-<Router {url} {base}> --
+<Router {url} {base}> 
   <main>
     <Route path="" component={Login} /> 
     <Route path="clients" component={ClientManager} /> 
@@ -27,5 +27,11 @@
 
 
 
-
-
+<!-- <Router {url} {base}> --
+  <main>
+    <Route path="" component={Login} /> 
+    <Route path="clients" component={Clients} /> 
+    <Route path="register" component={Register} />
+    <Route path="login" component={Login} /> 
+  </main> 
+ </Router>  -->

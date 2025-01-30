@@ -53,11 +53,11 @@
 
     let UserStatus;
 
-    $: {
-       UserStatus = $adminStore.isAdmin ? 'Admin' : 'Manager';
-       clientStore.loadClients();
-        console.log('статус обновлися перезагружаем клиентов', UserStatus);
-    }
+    // $: {
+    //    UserStatus = $adminStore.isAdmin ? 'Admin' : 'Manager';
+    //    clientStore.loadClients();
+    //     console.log('статус обновлися перезагружаем клиентов', UserStatus);
+    // }
 
 
 
