@@ -8,7 +8,7 @@
     ToolbarMenuItem,
   } from 'carbon-components-svelte';
 
-  
+
   import { createEventDispatcher } from 'svelte';
 
   import { clientStore } from '../Stores/clientStore';
@@ -23,8 +23,9 @@
   import { tableSettingsStore } from '../Stores/tableSettingsStore';
   
 
-  import Events from 'carbon-icons-svelte/lib/Events.svelte';
-  import Eyedropper from 'carbon-icons-svelte/lib/Eyedropper.svelte';
+  import Events from "carbon-icons-svelte/lib/Lightning.svelte";
+
+
   import Close from 'carbon-icons-svelte/lib/Close.svelte';
   
   let clients = [];
@@ -77,7 +78,6 @@ $: {
 
 
 
-//   // Реактивное выражение для фильтрации клиентов
 // Реактивное выражение для фильтрации клиентов
 $: {
     filteredClients = processedClients.filter(client => {
@@ -90,8 +90,10 @@ $: {
             client.email,
             client.status,
             client.source,
+            client.Touches,
             client.lastEventStatus,
-            isAdmin ? client.Manager : '', // Включаем поле Manager только для админа
+            // isAdmin ? client.Manager : '', // Включаем поле Manager только для админа
+            // isAdmin ? client.Touches : '',
         ].filter(Boolean); // Удаляем пустые значения
         return searchFields
             .join(' ')
@@ -118,10 +120,10 @@ $: {
 
 
 
-      function getManagerName(client) {
-    const manager = managers.find(m => m.id === client.manager_id);
-    return manager ? `${manager.manager_first_name} ${manager.manager_last_name}` : 'Нет менеджера';
-}
+//       function getManagerName(client) {
+//     const manager = managers.find(m => m.id === client.manager_id);
+//     return manager ? `${manager.manager_first_name} ${manager.manager_last_name}` : 'Нет менеджера';
+// }
 
 
 
@@ -147,9 +149,9 @@ $: {
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },
             { id: 'status', name: 'Статус', key: 'status', value: 'Статус' },
-            { id: 'Touches', name: 'Касаний', key: 'Touches', value: 'Touches', width: "40px" },
+            // { id: 'Touches', name: 'Касания', key: 'Touches', value: 'Касания', width: "100" },
             { id: 'lastEventStatus', name: 'Текущий статус', key: 'lastEventStatus', value: 'Текущий статус' },
-            { id: 'actions', name: 'Иконки', key: 'actions', value: 'Действия' }
+            { id: 'actions', name: 'Иконки', key: 'actions', value: '', width: "50%" }
         ]
         : [
             { id: 'first_name', name: 'Имя', key: 'first_name', value: 'Имя' },
@@ -158,7 +160,8 @@ $: {
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },
             { id: 'status', name: 'Статус', key: 'status', value: 'Статус' },
-            { id: 'actions', name: 'Иконки', key: 'actions', value: 'Действия' }
+            { id: 'actions', name: 'Иконки', key: 'actions', value: 'Действия' },
+            // { id: 'Touches', name: 'Касания', key: 'Touches', value: 'Касания', width: "100" }
         ];
 
       // Инициализируем выбранные колонки, если они еще не инициализированы
@@ -288,6 +291,9 @@ rows={filteredClients}
 stickyHeader>
   <svelte:fragment slot="cell" let:row let:cell>
       {#if cell.key === 'actions'}
+      <span style="margin-left: 8px; font-size: 12px; color: #555;">
+         {row.Touches}
+    </span>
       <Button
       kind="ghost"
       size="small"
@@ -300,10 +306,9 @@ stickyHeader>
           <button on:click={() => dispatch('edit', row)}>
               <Edit16 />
           </button>
+
       {:else if cell.key === 'status'}
           <Tag type={getTagType(cell.value)}>{cell.value}</Tag>   
-      <!-- {:else if cell.key === 'Manager'} 
-          {getManagerName(row)} -->
 
       {:else}
           {cell.value}

@@ -4,6 +4,8 @@
     import { createEventDispatcher } from 'svelte';
     import Add from "carbon-icons-svelte/lib/Add.svelte";
     const dispatch = createEventDispatcher();
+    import FaceActivatedAdd from "carbon-icons-svelte/lib/FaceActivatedAdd.svelte";
+
   </script>
   
 
@@ -14,9 +16,10 @@
     <Button
     size="field"
     
-    icon={Add}
+    icon={FaceActivatedAdd}
     on:click={() => dispatch('add')}
   >
+ 
   Добавить клиента
   </Button>
 

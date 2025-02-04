@@ -1,13 +1,13 @@
 <script>
-  import { Modal, Button } from "carbon-components-svelte";
-  import Edit16 from "carbon-icons-svelte/lib/Edit.svelte";
+  import { Modal, Button, ToastNotification } from "carbon-components-svelte";
+
   import { supabase } from "../supabase";
   import { eventStore } from "../Stores/eventStore";
   import { clientStore } from "../Stores/clientStore";
   import Add from "carbon-icons-svelte/lib/Add.svelte";
   //   import { loadClients } from '../ClientManager.svelte';
 
-  import { onMount } from "svelte";
+  import Event from "carbon-icons-svelte/lib/Lightning.svelte";
 
   import ClientEventForm from "./ClientEventForm.svelte";
   import ClientEventsList from "./ClientEventList.svelte";
@@ -25,52 +25,35 @@
   $: clients = $clientStore.clients;
   $: events = $eventStore.events;
 
+
+  let showSuccessToast = false; // Состояние для управления уведомлением
+  let showUpdateToast = false;
+
   //   console.log('dct события данног пользователя',events);
 
   // Фильтруем события по clientId
-  $: filteredEvents = events.filter((event) => event.client_id === clientId);
+//   $: filteredEvents = events.filter((event) => event.client_id === clientId);
 
-  console.log('все события events',events);
+
+  // Фильтруем события по clientId и преобразуем created_at
+$: filteredEvents = events
+    .filter(event => event.client_id === clientId)
+    .map(event => ({
+        ...event,
+        created_at: formatDateToHumanReadable(event.created_at) // Перезаписываем created_at
+    }));
+
+
 
   // Функция для преобразования даты в понятный для человека формат
   function formatDateToHumanReadable(date) {
-    // Пример форматирования даты
-    return new Date(date).toLocaleString();
+    const adjustedDate = new Date(new Date(date).getTime() - (3 * 60 * 60 * 1000));
+  
+     return adjustedDate.toLocaleString('ru-RU');
   }
 
-  //   onMount(() => {
-  //     loadEvents();
-  //   });
 
-  //   async function loadEvents() {
-  //     eventStore.setLoading(true);
-
-  //     try {
-  //       const { data, error } = await supabase
-  //         .from("client_events")
-  //         .select("*")
-  //         .eq("client_id", clientId)
-  //         .order("created_at", { ascending: false });
-
-  //       if (error) {
-  //         console.error("Error loading events:", error);
-  //         return;
-  //       }
-
-  //       events = data.map((event) => ({
-  //         ...event,
-  //         created_at: formatDateToHumanReadable(event.created_at),
-  //       }));
-
-  //       eventStore.setEvents(events);
-  //     } catch (error) {
-  //       eventStore.setError(error.message);
-  //       console.error("Unexpected error:", error);
-  //     } finally {
-  //       eventStore.setLoading(false);
-  //     }
-  //   }
-
+ 
   async function handleEventSubmit(event) {
     const eventData = event.detail;
     eventData.client_id = clientId;
@@ -89,7 +72,6 @@
       console.error("Error handling event submit:", error);
     }
   }
-
 
 
 
@@ -121,6 +103,14 @@
 
       // Обновляем eventStore
       eventStore.setEvents(updatedEvents);
+
+                    // Показываем уведомление об успехе
+                    showSuccessToast = true;
+
+// Скрываем уведомление через 3 секунды
+setTimeout(() => {
+  showSuccessToast = false;
+}, 3000);
 
       return data[0]; // возвращаем созданное событие
     } catch (error) {
@@ -167,6 +157,8 @@
 
         return data[0]; // Возвращаем обновленное событие
 
+
+
     } catch (error) {
         eventStore.setError(error.message);
         console.error("Error updating event:", error);
@@ -207,7 +199,21 @@
 </script>
 
 <div class="events-manager">
-  <Button icon={Add} on:click={handleAdd} kind="secondary">
+
+    
+{#if showSuccessToast}
+<ToastNotification
+  kind="success"
+  title="Событие добавлено"
+  subtitle={`${currentEvent.description} `}
+  timeout={3000}
+  lowContrast
+/>
+{/if}
+
+
+
+  <Button icon={Event} on:click={handleAdd} kind="secondary">
     Добавить событие</Button
   >
 

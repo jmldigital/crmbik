@@ -33,10 +33,9 @@ stickyHeader
 >
     <svelte:fragment slot="cell" let:row let:cell>
         {#if cell.key === 'actions'}
-            <Button 
-            on:click={() => dispatch('edit', row)}
-            icon={Edit16}
-            />
+        <button on:click={() => dispatch('edit', row)}>
+            <Edit16 />
+        </button>
             
         {:else}
             {row[cell.key]}
@@ -54,3 +53,4 @@ stickyHeader
   }
   
   </style>
+
