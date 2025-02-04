@@ -1,14 +1,14 @@
 <script>
     import { DataTable,Button } from 'carbon-components-svelte';
     import { createEventDispatcher } from 'svelte';
-    export let events = [];
+    export let filteredEvents = [];
     export let clientId;
-    import { eventStore } from '../Stores/eventStore';
+    // import { eventStore } from '../Stores/eventStore';
     import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
     const dispatch = createEventDispatcher();
 
        // Подписываемся на изменения store
-       $: events = $eventStore.events;
+    //    $: events = $eventStore.events;
 
     const headers = [
         { key: 'created_at', value: 'Дата' },
@@ -19,16 +19,17 @@
 </script>
 
 
-{#if $eventStore.loading}
+<!-- {#if $eventStore.loading}
     <div>Загрузка событий</div>
 {:else if $eventStore.error}
     <div>Ошибка: {$eventStore.error}</div>
-{:else}
+{:else} -->
 
 <DataTable 
 class="events-section"
 {headers} 
-rows={events}
+rows={filteredEvents}
+stickyHeader
 >
     <svelte:fragment slot="cell" let:row let:cell>
         {#if cell.key === 'actions'}
@@ -43,7 +44,7 @@ rows={events}
     </svelte:fragment>
 </DataTable>
 
-{/if} 
+<!-- {/if}  -->
 
 <style>
 .events-section .bx--data-table-container {

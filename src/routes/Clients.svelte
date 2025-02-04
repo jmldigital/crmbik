@@ -5,7 +5,7 @@
   import AddClientModal from "./AddClientModal.svelte";
   import AddClientEventsModal from "./AddClientEventsModal.svelte";
   import ClientTable from "./ClientTable.svelte";
-  import ClientEvents from "./Events/ClientEvents.svelte";
+  import ClientEvents from "./ClientEvents.svelte";
   // import EditClientEventsModal from "./EditClientEventsModal.svelte";
   import ClientForm from "./ClientForm.svelte";
   import EventForm from "./EventForm.svelte";

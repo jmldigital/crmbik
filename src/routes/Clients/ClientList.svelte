@@ -10,8 +10,12 @@
 
   
   import { createEventDispatcher } from 'svelte';
+
   import { clientStore } from '../Stores/clientStore';
   import { eventStore } from '../Stores/eventStore';
+  import { managerStore } from '../Stores/managerStore';
+
+
   import ClientEventManager from '../Events/ClientEventManager.svelte';
   import Edit16 from 'carbon-icons-svelte/lib/Edit.svelte';
   import { adminStore } from '../Stores/adminStore';
@@ -29,34 +33,72 @@
   $: isAdmin = $adminStore.isAdmin;
   $: clients = $clientStore.clients;
   $: events = $eventStore.events;
+  $: managers = $managerStore.managers;
+
 
 // Добавляем состояние для фильтрации
 let searchTerm = "";
 let filteredClients = clients;
+let processedClients = [];
+
+
+
+// $: {
+// console.log('все менеджеры',managers);
+// }
+
+
+
+// Предобработка данных для добавления поля Manager
+$: {
+    processedClients = clients.map(client => {
+        const manager = managers.find(manager => manager.id === client.manager_id);
+        const managerName = manager 
+            ? `${manager.manager_first_name} ${manager.manager_last_name}` 
+            : 'Нет менеджера';
+
+        const touchesCount = events.filter(event => event.client_id === client.id).length;
+
+        // Находим последнее событие для клиента
+        const lastEvent = events
+            .filter(event => event.client_id === client.id && event.created_at) // Фильтруем только события с created_at
+            .sort((a, b) => b.created_at.localeCompare(a.created_at))[0]; // Сортируем по created_at
+
+        const lastEventStatus = lastEvent?.status || 'Нет событий'; // Получаем статус последнего события или устанавливаем 'Нет событий'
+
+        return {
+            ...client,
+            Manager: managerName, // Поле с именем менеджера
+            Touches: touchesCount, // Поле с количеством событий
+            lastEventStatus: lastEventStatus, // Поле со статусом последнего события
+        };
+    });
+}
+
 
 
 //   // Реактивное выражение для фильтрации клиентов
-  $: {
-    filteredClients = clients.filter(client => {
-      const searchFields = [
-        client.first_name,
-        client.last_name,
-        client.object,
-        client.phone,
-        client.email,
-        client.status,
-        client.source,
-        client.lastEventStatus,
-        isAdmin ? client.Manager : '', // Включаем поле Manager только для админа
-      ].filter(Boolean); // Удаляем пустые значения
-
-      return searchFields
-        .join(' ')
-        .toLowerCase()
-        .includes(searchTerm.toLowerCase());
+// Реактивное выражение для фильтрации клиентов
+$: {
+    filteredClients = processedClients.filter(client => {
+        const searchFields = [
+            client.Manager, // Теперь поле Manager уже доступно
+            client.first_name,
+            client.last_name,
+            client.object,
+            client.phone,
+            client.email,
+            client.status,
+            client.source,
+            client.lastEventStatus,
+            isAdmin ? client.Manager : '', // Включаем поле Manager только для админа
+        ].filter(Boolean); // Удаляем пустые значения
+        return searchFields
+            .join(' ')
+            .toLowerCase()
+            .includes(searchTerm.toLowerCase());
     });
-  }
-
+}
 
 
   let expandedClient = null;
@@ -73,6 +115,15 @@ let filteredClients = clients;
 
       // Подписываемся на store
       $: showColumnSelector = $tableSettingsStore.showColumnSelector;
+
+
+
+      function getManagerName(client) {
+    const manager = managers.find(m => m.id === client.manager_id);
+    return manager ? `${manager.manager_first_name} ${manager.manager_last_name}` : 'Нет менеджера';
+}
+
+
 
   // Загружаем сохраненные настройки при монтировании компонента
   onMount(() => {
@@ -190,14 +241,8 @@ let filteredClients = clients;
   }
 
 </script>
-<!-- <div class="button-container">
-  <Button 
-      kind="tertiary"
-      on:click={toggleColumnSelector}
-  >
-      {showColumnSelector ? 'Скрыть настройки таблицы' : 'Редактировать таблицу'}
-  </Button>
-</div> -->
+
+
 
 {#if showColumnSelector}
   <div class="column-selector">
@@ -231,10 +276,8 @@ let filteredClients = clients;
 <div class="divider">
 
 </div>
-<!-- Основная таблица с клиентами -->
-<!-- rows={clients}  -->
 
-<!-- rows={filteredClients} -->
+
 <DataTable 
 
 sortable
@@ -258,7 +301,10 @@ stickyHeader>
               <Edit16 />
           </button>
       {:else if cell.key === 'status'}
-          <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
+          <Tag type={getTagType(cell.value)}>{cell.value}</Tag>   
+      <!-- {:else if cell.key === 'Manager'} 
+          {getManagerName(row)} -->
+
       {:else}
           {cell.value}
       {/if}
