@@ -1,7 +1,8 @@
 <script>
   import { Router, Link, Route } from "svelte-routing";
   import Register from "./routes/Register.svelte";
-  import Clients from "./routes/Clients.svelte";
+  import Reset from "./routes/ResetPassword.svelte";
+  import NewPassword from "./routes/NewPassword.svelte";
   import '../src/carbon.scss';
   import Login from "./routes/Login.svelte";
   import ClientManager from './routes/Clients/ClientManager.svelte';
@@ -21,6 +22,8 @@
     <Route path="" component={Login} /> 
     <Route path="clients" component={ClientManager} /> 
     <Route path="register" component={Register} />
+    <Route path="reset" component={Reset} />
+    <Route path="NewPassword" component={NewPassword} />
     <Route path="login" component={Login} /> 
   </main> 
  </Router> 

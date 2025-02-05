@@ -116,7 +116,7 @@
       // Сохраняем пользователя в store
       userStore.setUser(user);
 
-      // // Проверяем статус админа
+      // Проверяем статус админа
       await adminStore.checkAdminStatus();
 
       console.log("Login successful");
@@ -134,6 +134,12 @@
   function goToReg() {
     navigate("/register");
   }
+
+  function goToReset() {
+    navigate("/reset");
+  }
+
+
 </script>
 
 <Grid>
@@ -170,9 +176,14 @@
           {loading ? "Вход..." : "Войти"}
         </Button>
         <Button kind="secondary" on:click={goToReg} disabled={loading}>
-          Регистрация нового пользователя
+          Зарегистрироваться
         </Button>
+        
       </Form>
     </Column>
+   
   </Row>
+  <Button kind="ghost" on:click={goToReset} disabled={loading}>
+    забыл пароль
+  </Button>
 </Grid>
