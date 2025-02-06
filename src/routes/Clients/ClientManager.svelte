@@ -87,7 +87,7 @@
 
   function handleEdit(event) {
     currentClient = { ...event.detail };
-    console.log(" обноваляем овыбранного клиента currentClient", currentClient);
+    console.log(" обноваляем овыбранного клиента currentClient", currentClient.phone);
     isEditing = true;
     isModalOpen = true;
   }
@@ -144,6 +144,8 @@
       setTimeout(() => {
         showSuccessToast = false;
       }, 3000);
+
+
     } catch (err) {
       alert(err.message);
     } finally {
@@ -240,7 +242,11 @@ setTimeout(() => {
     on:click:button--secondary={() => (isModalOpen = false)}
     hasForm
   >
-    <ClientForm client={currentClient} {isEditing} on:submit={handleSubmit} />
+    <ClientForm 
+    client={currentClient} 
+    {isEditing} 
+    
+    on:submit={handleSubmit} />
   </Modal>
 </div>
 
