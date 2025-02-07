@@ -184,6 +184,6 @@
    
   </Row>
   <Button kind="ghost" on:click={goToReset} disabled={loading}>
-    забыл пароль
+    Восстановить пароль
   </Button>
 </Grid>

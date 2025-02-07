@@ -4,7 +4,7 @@
   import { supabase } from "../supabase";
   import { eventStore } from "../Stores/eventStore";
   import { clientStore } from "../Stores/clientStore";
-  import Add from "carbon-icons-svelte/lib/Add.svelte";
+  import { referenceStore } from "../Stores/referenceStore";
   //   import { loadClients } from '../ClientManager.svelte';
 
   import Event from "carbon-icons-svelte/lib/Lightning.svelte";
@@ -24,7 +24,7 @@
 
   $: clients = $clientStore.clients;
   $: events = $eventStore.events;
-
+  $: eventStatuses = $referenceStore.eventStatus;
 
   let showSuccessToast = false; // Состояние для управления уведомлением
   let showUpdateToast = false;
@@ -178,7 +178,7 @@ setTimeout(() => {
     }
 
     currentEvent = {
-      status: "Новый", // устанавливаем значение по умолчанию
+      status: eventStatuses[0]?.value || "", // устанавливаем значение по умолчанию
       description: "",
       client_id: clientId,
       manager_id: currentClient.manager_id, // добавляем manager_id из найденного клиента

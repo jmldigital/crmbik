@@ -43,14 +43,7 @@ stickyHeader
     </svelte:fragment>
 </DataTable>
 
-<!-- {/if}  -->
 
-<style>
-.events-section .bx--data-table-container {
 
-    background-color:red!important;
 
-  }
-  
-  </style>
 

@@ -45,7 +45,6 @@
   let SelectedStatus = client.status;
   let SelectedSource = client.source;
 
-  let phoneValue = "";
 
   // Реагируем на изменения client
   $: {
