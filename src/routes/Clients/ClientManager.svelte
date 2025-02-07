@@ -46,7 +46,7 @@
     object: "",
     phone: "",
     source: "",
-    email: "",
+    description: "",
     status: "Новый",
   };
 
@@ -76,7 +76,7 @@
       object: objects[0]?.value || "",
       phone: "",
       source: sources[0]?.value || "", // Значение по умолчанию - первый элемент
-      email: "",
+      description: "",
       status: statuses[0]?.value || "", // Значение по умолчанию - первый элемент
     };
 
@@ -87,7 +87,10 @@
 
   function handleEdit(event) {
     currentClient = { ...event.detail };
-    console.log(" обноваляем овыбранного клиента currentClient", currentClient.phone);
+    console.log(
+      " обноваляем овыбранного клиента currentClient",
+      currentClient.phone
+    );
     isEditing = true;
     isModalOpen = true;
   }
@@ -113,13 +116,10 @@
       //   const { data: userData } = await supabase.auth.getUser();
       const userId = user.id;
 
-      const { data: managerData, error: managerError } = await supabase
-        .from("managers")
-        .select("manager_first_name, manager_last_name")
-        .eq("id", userId)
-        .single();
+      // Установить isAdmin в true
+      // adminStore.setAdminStatus(true);
 
-      if (managerError) throw managerError;
+
 
       const { data, error: addError } = await supabase
         .from("clients")
@@ -144,8 +144,6 @@
       setTimeout(() => {
         showSuccessToast = false;
       }, 3000);
-
-
     } catch (err) {
       alert(err.message);
     } finally {
@@ -170,17 +168,13 @@
 
       console.log("clientData при обновлении", clientData);
 
+      // Показываем уведомление об успехе
+      showUpdateToast = true;
 
-          // Показываем уведомление об успехе
-          showUpdateToast = true;
-
-// Скрываем уведомление через 3 секунды
-setTimeout(() => {
-    showUpdateToast = false;
-
-}, 3000);
-
-
+      // Скрываем уведомление через 3 секунды
+      setTimeout(() => {
+        showUpdateToast = false;
+      }, 3000);
 
       // Обновляем store
       const currentClients = $clientStore.clients;
@@ -199,18 +193,15 @@ setTimeout(() => {
 
 <Header UserStatus={user}></Header>
 
-
-{#if showUpdateToast }
-    <ToastNotification
-        kind="success"
-        title='Клиент обновлен'
-        subtitle={`${currentClient.first_name} ${currentClient.last_name}`}
-        timeout={3000} 
-        lowContrast
-    />
+{#if showUpdateToast}
+  <ToastNotification
+    kind="success"
+    title="Клиент обновлен"
+    subtitle={`${currentClient.first_name} ${currentClient.last_name}`}
+    timeout={3000}
+    lowContrast
+  />
 {/if}
-
-
 
 {#if showSuccessToast}
   <ToastNotification
@@ -242,11 +233,7 @@ setTimeout(() => {
     on:click:button--secondary={() => (isModalOpen = false)}
     hasForm
   >
-    <ClientForm 
-    client={currentClient} 
-    {isEditing} 
-    
-    on:submit={handleSubmit} />
+    <ClientForm client={currentClient} {isEditing} on:submit={handleSubmit} />
   </Modal>
 </div>
 

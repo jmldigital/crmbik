@@ -87,7 +87,7 @@ $: {
             client.last_name,
             client.object,
             client.phone,
-            client.email,
+            client.description,
             client.status,
             client.source,
             client.Touches,
@@ -120,13 +120,6 @@ $: {
 
 
 
-//       function getManagerName(client) {
-//     const manager = managers.find(m => m.id === client.manager_id);
-//     return manager ? `${manager.manager_first_name} ${manager.manager_last_name}` : 'Нет менеджера';
-// }
-
-
-
   // Загружаем сохраненные настройки при монтировании компонента
   onMount(() => {
     const savedColumns = localStorage.getItem('selectedColumns');
@@ -145,6 +138,7 @@ $: {
         ? [
             { id: 'Manager', name: 'Менеджер', key: 'Manager', value: 'Менеджер' },
             { id: 'last_name', name: 'Фамилия', key: 'last_name', value: 'Фамилия' },
+            { id: 'description', name: 'Описание', key: 'description', value: 'Описание' },
             { id: 'object', name: 'Объект', key: 'object', value: 'Объект' },
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },
@@ -156,6 +150,7 @@ $: {
         : [
             { id: 'first_name', name: 'Имя', key: 'first_name', value: 'Имя' },
             { id: 'last_name', name: 'Фамилия', key: 'last_name', value: 'Фамилия' },
+            { id: 'description', name: 'Описание', key: 'description', value: 'Описание' },
             { id: 'object', name: 'Объект', key: 'object', value: 'Объект' },
             { id: 'phone', name: 'Телефон', key: 'phone', value: 'Телефон' },
             { id: 'source', name: 'Источник', key: 'source', value: 'Источник' },

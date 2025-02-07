@@ -29,7 +29,7 @@
     object: objects[0]?.value || "",
     phone: "",
     source: sources[0]?.value || "", // Значение по умолчанию - первый элемент
-    email: "",
+    description: "",
     status: statuses[0]?.value || "", // Значение по умолчанию - первый элемент
   };
 
@@ -82,11 +82,6 @@
       errors.phone = "Неверный формат телефона";
     }
 
-    if (!client.email?.trim()) {
-      errors.email = "Email обязателен";
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(client.email)) {
-      errors.email = "Неверный формат email";
-    }
 
     return Object.keys(errors).length === 0;
   }
@@ -183,11 +178,11 @@ invalidText={errors.phone}
 /> -->
 
   <TextInput
-    type="email"
-    placeholder="Email"
-    bind:value={client.email}
-    invalid={!!errors.email}
-    invalidText={errors.email}
+    type="text"
+    placeholder="Краткое описание"
+    bind:value={client.description}
+    invalid={!!errors.description}
+    invalidText={errors.description}
   />
 
   <Select labelText="Статус" bind:selected={SelectedStatus}>
