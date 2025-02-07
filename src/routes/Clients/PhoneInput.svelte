@@ -62,6 +62,7 @@
     function handleInputChange(event: Event): void {
       const target = event.target as HTMLInputElement;
       phoneNumber = target.value; // Обновляем значение
+    //   console.log('target',target);
       onInputChange(phoneNumber); // Передаем значение родителю
     }
   

@@ -47,37 +47,9 @@
         console.log('Status updated:', UserStatus);
     }
 
-//     onMount(async () => {
-//     try {
-//         // Сначала проверяем пользователя
-//         await userStore.checkAndSetUser();
-//         // Потом проверяем статус админа
-//         await adminStore.checkAdminStatus();
-        
-//         console.log('After all checks - UserStatus:', UserStatus);
-//     } catch (error) {
-//         console.error('Error during initialization:', error);
-//     }
-// });
 
-
-    
 console.log('currentUser в хедере',userEmail);
 
-  // // Функция для выхода из системы
-  // async function handleLogout() {
-  //   const { error } = await supabase.auth.signOut();
-  //   if (error) {
-  //     console.error('Error signing out:', error);
-  //   } else {
-  //     eventStore.clearEvents; 
-  //     userStore.setUser(null);// Очистка eventStore
-  //     adminStore.reset();
-
-  //     // Перенаправляем пользователя на главную страницу после выхода
-  //     navigate('/');
-  //   }
-  // }
 
 
   async function handleLogout() {
@@ -169,7 +141,6 @@ console.log('currentUser в хедере',userEmail);
     <Row>
       <Column>
         <h2>Мои клиенты</h2>
-     
       </Column>
     </Row>
   </Grid>

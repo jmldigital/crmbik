@@ -77,3 +77,14 @@ button:focus-visible {
     background-color: #f9f9f9;
   }
 }
+
+
+@media (max-width:500px) {
+
+#app {
+  max-width: 100%;
+  
+  padding: 0px;
+  
+}
+}

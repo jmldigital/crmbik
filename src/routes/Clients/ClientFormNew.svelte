@@ -49,15 +49,17 @@
   // Реагируем на изменения client
   $: {
     if (client) {
-      SelectedStatus = client.status || "Новый";
-      SelectedSource = client.source || "Telegram";
+        // console.log('statuses[0].value',statuses[1].value);
+      SelectedStatus = client.status ||  statuses[0].value;
+      SelectedSource = client.source ||  sources[0].value;
     }
   }
+  
 
   onMount(() => {
     // Устанавливаем начальные значения при монтировании компонента
-    SelectedStatus = client.status || "Новый";
-    SelectedSource = client.source || "Telegram";
+    SelectedStatus = client.status || statuses[0].value;
+    SelectedSource = client.source || sources[0].value;
     // phoneValue = client.phone;
   });
 
@@ -109,20 +111,13 @@
   function handlePhoneChange(NewValue) {
     // phoneValue = NewValue;
     client.phone = NewValue;
-    // console.log("Новый номер:", client.phone); // Выводим новое значение в консоль
+    client.source = SelectedSource;
+    client.status = SelectedStatus;
+  
   }
 
-  // Реактивное отслеживание изменений client.phone
-  // $: {
-  //     if (client.phone) {
-
-  //          phoneValue = client.phone;
-  //        console.log("Новый номер реактивный :", phoneValue); // Реактивный вывод нового значения
-  // }
-  //   }
 </script>
 
-<!-- <p>Введенный номер: {client.phone}</p> -->
 
 <Form on:submit={handleSubmit}>
   <TextInput
@@ -167,14 +162,6 @@
     />
   {/if}
 
-  <!-- <TextInput
-type="tel"
-placeholder="Телефон"
-bind:value={phoneValue}
-required
-invalid={!!errors.phone}
-invalidText={errors.phone}
-/> -->
 
   <TextInput
     type="text"

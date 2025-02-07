@@ -47,7 +47,7 @@
     phone: "",
     source: "",
     description: "",
-    status: "Новый",
+    status:  ""
   };
 
   let showSuccessToast = false; // Состояние для управления уведомлением
@@ -70,6 +70,8 @@
   });
 
   function handleAdd() {
+
+    console.log('statuses',statuses[1]?.value);
     currentClient = {
       first_name: "",
       last_name: "",
