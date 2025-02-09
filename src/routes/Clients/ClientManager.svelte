@@ -17,6 +17,9 @@
 
   import { userStore } from "../Stores/userStore";
   import { managerStore } from "../Stores/managerStore";
+  import { getManagerNameByPhone } from "../utils/supabaseUtils.js";
+
+  import Toast from "../Toast.svelte"; // Импортируем новый компонент
 
   // Состояния
   let clients = [];
@@ -25,7 +28,7 @@
   let lastEventStatus = null;
   // let currentClient = null;
 
-  let User = "Unown";
+  let managerName = "";
 
   // Используйте данные из store
 
@@ -47,11 +50,41 @@
     phone: "",
     source: "",
     description: "",
-    status:  ""
+    status: "",
   };
 
-  let showSuccessToast = false; // Состояние для управления уведомлением
-  let showUpdateToast = false;
+  let toastNotification = {
+    show: false,
+    kind: "success",
+    title: "",
+    subtitle: "",
+    timeout: 3000,
+    lowContrast: true,
+  };
+
+
+    // Функция для обновления уведомления
+
+  function showToast(kind, title, subtitle, lowContrast = true) {
+    toastNotification = {
+      show: true,
+      kind,
+      title,
+      subtitle,
+      timeout: 3000,
+      lowContrast,
+    };
+  }
+
+  async function fetchManagerName(phone) {
+    const result = await getManagerNameByPhone(phone);
+
+    if (result) {
+      managerName = `${result.first_name} ${result.last_name}`;
+    } else {
+      managerName = null;
+    }
+  }
 
   onMount(async () => {
     try {
@@ -70,8 +103,7 @@
   });
 
   function handleAdd() {
-
-    console.log('statuses',statuses[1]?.value);
+    console.log("statuses", statuses[1]?.value);
     currentClient = {
       first_name: "",
       last_name: "",
@@ -103,13 +135,23 @@
     if (isEditing) {
       console.log("isEditing Update", clientData);
       await updateClient(clientData);
+      isModalOpen = false;
     } else {
       console.log("isEditing Create", clientData);
-      await createClient(clientData);
-    }
+      await fetchManagerName(clientData.phone);
+      console.log("managerName", managerName);
 
-    isModalOpen = false;
-    // await loadClients();
+      if (managerName == null) {
+        await createClient(clientData);
+      } else {
+        // console.log("такой клиент уже есть у ", managerName);
+        showToast("warning", "Клиент уже существует", `Закреплен за менеджером: ${managerName}`, false);
+        isModalOpen = false;
+      }
+
+      isModalOpen = false;
+      // await loadClients();
+    }
   }
 
   async function createClient(clientData) {
@@ -120,8 +162,6 @@
 
       // Установить isAdmin в true
       // adminStore.setAdminStatus(true);
-
-
 
       const { data, error: addError } = await supabase
         .from("clients")
@@ -140,12 +180,11 @@
       clientStore.setClients([data[0], ...currentClients]);
 
       // Показываем уведомление об успехе
-      showSuccessToast = true;
+
+      showToast("success", "Клиент успешно добавлен", `${clientData.first_name} ${clientData.last_name}`);
 
       // Скрываем уведомление через 3 секунды
-      setTimeout(() => {
-        showSuccessToast = false;
-      }, 3000);
+    
     } catch (err) {
       alert(err.message);
     } finally {
@@ -171,13 +210,11 @@
       console.log("clientData при обновлении", clientData);
 
       // Показываем уведомление об успехе
-      showUpdateToast = true;
+          
+        // Показываем уведомление об успехе
+        showToast("success", "Клиент обновлен", `${clientData.first_name} ${clientData.last_name}`);
 
-      // Скрываем уведомление через 3 секунды
-      setTimeout(() => {
-        showUpdateToast = false;
-      }, 3000);
-
+   
       // Обновляем store
       const currentClients = $clientStore.clients;
       clientStore.setClients(
@@ -189,31 +226,14 @@
     } finally {
       clientStore.setLoading(false);
       isEditing = false;
+  
     }
   }
 </script>
 
 <Header UserStatus={user}></Header>
 
-{#if showUpdateToast}
-  <ToastNotification
-    kind="success"
-    title="Клиент обновлен"
-    subtitle={`${currentClient.first_name} ${currentClient.last_name}`}
-    timeout={3000}
-    lowContrast
-  />
-{/if}
-
-{#if showSuccessToast}
-  <ToastNotification
-    kind="success"
-    title="Клиент успешно добавлен"
-    subtitle={`${currentClient.first_name} ${currentClient.last_name}`}
-    timeout={3000}
-    lowContrast
-  />
-{/if}
+<Toast toast={toastNotification} />
 
 <div class="client-manager">
   <ClientActions on:add={handleAdd} />
