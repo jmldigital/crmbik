@@ -107,7 +107,7 @@ console.log('currentUser в хедере',userEmail);
   <HeaderUtilities>
 
     <HeaderGlobalAction
-    iconDescription="Settings"
+    iconDescription="Настройки"
     tooltipAlignment="start"
     icon={SettingsAdjust}
     on:click={toggleTableSettings}
@@ -123,7 +123,7 @@ console.log('currentUser в хедере',userEmail);
 
 
     <HeaderGlobalAction
-      iconDescription="Log out"
+      iconDescription="Выход"
       tooltipAlignment="end"
       icon={Logout}
       on:click={handleLogout}

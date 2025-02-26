@@ -6,8 +6,9 @@
     Toolbar,
     ToolbarContent,
     ToolbarSearch,
-    ToolbarMenu,
-    ToolbarMenuItem,
+    OverflowMenu,
+    Link,
+    OverflowMenuItem
   } from "carbon-components-svelte";
 
   import { createEventDispatcher } from "svelte";
@@ -107,6 +108,9 @@
   let selectedRowIds = [];
   let headers = [];
 
+  
+
+
   // Подписываемся на store
   $: showColumnSelector = $tableSettingsStore.showColumnSelector;
 
@@ -116,7 +120,10 @@
     if (savedColumns) {
       selectedRowIds = JSON.parse(savedColumns);
     }
+
   });
+
+
 
   // { key: 'first_name', value: 'Имя' },
   // Определяем заголовки после того, как adminStore будет доступен
@@ -160,11 +167,12 @@
             },
             {
               id: "actions",
-              name: "Иконки",
+              name: "Действия",
               key: "actions",
               value: "",
-              width: "50%",
+              // width: "50%",
             },
+            { key: "overflow", empty: true, id: "overflow",name: "Меню",value: "Меню", }
           ]
         : [
             { id: "first_name", name: "Имя", key: "first_name", value: "Имя" },
@@ -191,7 +199,7 @@
             { id: "status", name: "Статус", key: "status", value: "Статус" },
             {
               id: "actions",
-              name: "Иконки",
+              name: "Действия",
               key: "actions",
               value: "Действия",
             },
@@ -227,11 +235,7 @@
     }
   }
 
-  const allRows = [
-    { id: 1, name: "Row 1" },
-    { id: 2, name: "Row 2" },
-    { id: 3, name: "Row 3" },
-  ];
+ 
 
   function handleSelection(event) {
     // Проверяем структуру события
@@ -266,10 +270,6 @@
           // Снимаем выбор со всех строк
           selectedRowIds = [];
         }
-
-
-
-
       }
 
 
@@ -298,6 +298,11 @@
   function handleSearch(event) {
     searchTerm = event.target.value;
   }
+
+  // let selectedTabRowIds = [];
+  $: console.log("selectedTabRowIds", selectedRowIds);
+
+
 </script>
 
 {#if showColumnSelector}
@@ -326,34 +331,59 @@
 
 <div class="divider"></div>
 
-<DataTable sortable {headers} rows={filteredClients} stickyHeader>
+<DataTable 
+
+{selectedRowIds}
+radio
+
+sortable {headers} 
+rows={filteredClients} stickyHeader>
   <svelte:fragment slot="cell" let:row let:cell>
     {#if cell.key === "actions"}
-      <span style="margin-left: 8px; font-size: 12px; color: #555;">
-        {row.Touches}
-      </span>
-      <Button
-        kind="ghost"
-        size="small"
-        tooltipPosition="left"
-        tooltipAlignment="end"
-        iconDescription={expandedClient === row.id
-          ? "Скрыть события"
-          : "Показать события"}
-        icon={expandedClient === row.id ? Close : Events}
-        on:click={() =>
-          (expandedClient = expandedClient === row.id ? null : row.id)}
-      />
-      <button on:click={() => dispatch("edit", row)}>
-        <Edit16 />
-      </button>
+     
+    <Button
+  kind={row.Touches === 0 ? 'ghost' : 'secondary'}
+  size="small"
+  tooltipPosition="left"
+  tooltipAlignment="end"
+  iconDescription={expandedClient === row.id
+    ? "Скрыть события"
+    : "Показать события"}
+  icon={expandedClient === row.id ? Close : Events}
+  on:click={() =>
+    (expandedClient = expandedClient === row.id ? null : row.id)}
+>
+  {row.Touches}
+</Button>
+
+
+      <!-- icon={expandedClient === row.id ? Close : Events} -->
+
+
     {:else if cell.key === "status"}
       <Tag type={getTagType(cell.value)}>{cell.value}</Tag>
     {:else}
       {cell.value}
     {/if}
+
+    {#if cell.key === "overflow"}
+    <div class="overflow-cell">
+    <OverflowMenu flipped>
+     
+      <OverflowMenuItem text="Реадактировать" >
+        <Link  on:click={() => dispatch("edit", row)}>
+          Реадактировать
+        </Link>
+      </OverflowMenuItem>
+
+    </OverflowMenu>
+  </div>
+  {/if}
+
+
   </svelte:fragment>
 
+ 
   <Toolbar>
     <ToolbarContent>
       <ToolbarSearch
@@ -378,4 +408,30 @@
   .divider {
     height: 5vh;
   }
+
+  /* .overflow-cell {
+
+    background-color:yellow;
+  } */
+
+  .bx--data-table tbody tr:focus {
+    background-color:yellow;
+
+  }
+
+  .bx--data-table tbody tr:active {
+    background-color:yellow;
+
+  }
+
+  tr.bx--data-table--selected td   {
+    background-color:yellow!important;
+
+  }
+
+
+
+
+
 </style>
+

@@ -1,5 +1,6 @@
 <script>
-    import { DataTable,Button } from 'carbon-components-svelte';
+    import { DataTable,Button,  Link, OverflowMenu,
+        OverflowMenuItem } from 'carbon-components-svelte';
     import { createEventDispatcher } from 'svelte';
     export let filteredEvents = [];
     export let clientId;
@@ -14,7 +15,7 @@
         { key: 'created_at', value: 'Дата' },
         { key: 'status', value: 'Статус' },
         { key: 'description', value: 'Описание' },
-        { key: 'actions', value: 'Действия' }
+        { key: 'actions', value: '', width:'50px' }
     ];
 </script>
 
@@ -32,14 +33,25 @@ rows={filteredEvents}
 stickyHeader
 >
     <svelte:fragment slot="cell" let:row let:cell>
-        {#if cell.key === 'actions'}
-        <button on:click={() => dispatch('edit', row)}>
-            <Edit16 />
-        </button>
-            
-        {:else}
-            {row[cell.key]}
-        {/if}
+        {#if cell.key === 'actions'}   
+        <div class="overflow-cell">
+        <OverflowMenu flipped>
+         
+          <OverflowMenuItem text="Реадактировать" >
+            <Link  on:click={() => dispatch("edit", row)}>
+              Реадактировать
+            </Link>
+          </OverflowMenuItem>
+    
+        </OverflowMenu>
+      </div>
+      {:else}
+      {row[cell.key]}
+  {/if}
+    
+
+
+
     </svelte:fragment>
 </DataTable>
 
