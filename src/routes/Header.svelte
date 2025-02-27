@@ -77,15 +77,18 @@ console.log('currentUser в хедере',userEmail);
    
 
 
+function toggleTableSettings() {
+  tableSettingsStore.update(state => {
+    const newState = {
+      ...state,
+      showColumnSelector: !state.showColumnSelector
+    };
+ 
+    return newState;
+  });
+}
 
 
-
-  function toggleTableSettings() {
-        tableSettingsStore.update(state => ({
-            ...state,
-            showColumnSelector: !state.showColumnSelector
-        }));
-    }
 
 
 </script>

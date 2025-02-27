@@ -12,6 +12,9 @@
 
   import PhoneInput from "./PhoneInput.svelte";
 
+  import Save from "carbon-icons-svelte/lib/Save.svelte";
+
+
   import { referenceStore } from "../Stores/referenceStore";
 
   const dispatch = createEventDispatcher();
@@ -176,6 +179,6 @@
       <SelectItem value={status.value} text={status.text} />
     {/each}
   </Select>
-
-  <Button type="submit">Сохранить</Button>
+  <div class="space"></div>
+  <Button type="submit" icon={Save}>Сохранить</Button>
 </Form>

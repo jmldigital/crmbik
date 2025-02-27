@@ -9,6 +9,9 @@
   import { createEventDispatcher } from "svelte";
   import { referenceStore } from "../Stores/referenceStore";
 
+  import Save from "carbon-icons-svelte/lib/Save.svelte";
+
+
   export let isEditing = false;
   const dispatch = createEventDispatcher();
   let errors = {};
@@ -47,13 +50,8 @@
 </script>
 
 <form on:submit={handleSubmit}>
-  <!-- <Select labelText="Статус" bind:selected={SelectedStatus}>
-        {#each statuses as status}
-          <SelectItem value={status.value} text={status.text} />
-        {/each}
-      </Select> -->
 
-  <Select labelText="Статус события" bind:selected={currentEvent.status}>
+  <Select labelText="Тип события" bind:selected={currentEvent.status}>
     {#each eventStatuses as status}
       <SelectItem value={status.value} text={status.text} />
     {/each}
@@ -67,6 +65,6 @@
     invalid={!!errors.description}
     invalidText={errors.description}
   />
-
-  <Button type="submit">Сохранить</Button>
+  <div class="space"></div>
+  <Button type="submit" icon={Save}>Сохранить</Button>
 </form>
