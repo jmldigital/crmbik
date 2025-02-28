@@ -123,22 +123,6 @@
 
 
 <Form on:submit={handleSubmit}>
-  <TextInput
-    type="text"
-    placeholder="Имя"
-    bind:value={client.first_name}
-    required
-    invalid={!!errors.first_name}
-    invalidText={errors.first_name}
-  />
-
-  <TextInput type="text" placeholder="Фамилия" bind:value={client.last_name} />
-
-  <Select labelText="Источник" bind:selected={SelectedSource}>
-    {#each sources as source}
-      <SelectItem value={source.value} text={source.text} />
-    {/each}
-  </Select>
 
   <Select labelText="Объект" bind:selected={client.object}>
     {#each objects as object}
@@ -146,6 +130,18 @@
     {/each}
   </Select>
 
+  <TextInput type="text" placeholder="Квартира,этаж" bind:value={client.last_name} />
+
+  <TextInput
+    type="text"
+    placeholder="ФИО"
+    bind:value={client.first_name}
+    required
+    invalid={!!errors.first_name}
+    invalidText={errors.first_name}
+  />
+
+ 
   <PhoneInput
     phoneNumber={client.phone}
     onInputChange={handlePhoneChange}
@@ -155,24 +151,33 @@
     ]}
   />
 
-  {#if showToast}
-    <ToastNotification
-      kind={toastKind}
-      title={toastTitle}
-      subtitle={toastSubtitle}
-      timeout={3000}
-      lowContrast
-    />
-  {/if}
-
-
   <TextInput
-    type="text"
-    placeholder="Краткое описание"
-    bind:value={client.description}
-    invalid={!!errors.description}
-    invalidText={errors.description}
+  type="text"
+  placeholder="Краткое описание"
+  bind:value={client.description}
+  invalid={!!errors.description}
+  invalidText={errors.description}
+/>
+  
+  <Select labelText="Источник" bind:selected={SelectedSource}>
+    {#each sources as source}
+      <SelectItem value={source.value} text={source.text} />
+    {/each}
+  </Select>
+
+  {#if showToast}
+  <ToastNotification
+    kind={toastKind}
+    title={toastTitle}
+    subtitle={toastSubtitle}
+    timeout={3000}
+    lowContrast
   />
+{/if}
+
+ 
+ 
+
 
   <Select labelText="Статус" bind:selected={SelectedStatus}>
     {#each statuses as status}

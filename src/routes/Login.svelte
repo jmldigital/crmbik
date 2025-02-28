@@ -172,6 +172,8 @@
           required
         />
 
+        <div class="space"></div>
+
         <Button type="submit" disabled={loading}>
           {loading ? "Вход..." : "Войти"}
         </Button>

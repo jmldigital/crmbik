@@ -105,25 +105,34 @@
     if ($adminStore) {
       allHeaders = $adminStore.isAdmin
         ? [
-            { id: "Manager", name: "Менеджер", key: "Manager", value: "Менеджер" },
-            { id: "last_name", name: "Фамилия", key: "last_name", value: "Фамилия" },
-            { id: "description", name: "Описание", key: "description", value: "Описание" },
-            { id: "object", name: "Объект", key: "object", value: "Объект" },
+          { id: "Manager", name: "Менеджер", key: "Manager", value: "Менеджер" },
+          { id: "object", name: "Объект", key: "object", value: "Объект" },
+          { id: "last_name", name: "Квартира, этаж", key: "last_name", value: "Квартира, этаж" },
+            { id: "first_name", name: "ФИО", key: "first_name", value: "ФИО" },
             { id: "phone", name: "Телефон", key: "phone", value: "Телефон" },
+            { id: "description", name: "Описание", key: "description", value: "Описание" },
+            
+            
             { id: "source", name: "Источник", key: "source", value: "Источник" },
             { id: "status", name: "Статус", key: "status", value: "Статус" },
-            { id: "lastEventStatus", name: "Текущий статус", key: "lastEventStatus", value: "Текущий статус" },
+            { id: "lastEventStatus", name: "Финальная договоренность", key: "lastEventStatus", value: "Финальная договоренность" },
             { id: "actions", name: "Действия", key: "actions", value: "" },
             { id: "overflow", name: "Меню", key: "overflow", value: "Меню" },
           ]
         : [
-            { id: "first_name", name: "Имя", key: "first_name", value: "Имя" },
-            { id: "last_name", name: "Фамилия", key: "last_name", value: "Фамилия" },
-            { id: "description", name: "Описание", key: "description", value: "Описание" },
-            { id: "object", name: "Объект", key: "object", value: "Объект" },
+          { id: "object", name: "Объект", key: "object", value: "Объект" },
+            { id: "first_name", name: "ФИО", key: "first_name", value: "ФИО" },
+            { id: "last_name", name: "Квартира, этаж", key: "last_name", value: "Квартира, этаж" },
             { id: "phone", name: "Телефон", key: "phone", value: "Телефон" },
+            { id: "description", name: "Описание", key: "description", value: "Описание" },
+            
+            
             { id: "source", name: "Источник", key: "source", value: "Источник" },
             { id: "status", name: "Статус", key: "status", value: "Статус" },
+
+            { id: "lastEventStatus", name: "Финальная договоренность", key: "lastEventStatus", value: "Финальная договоренность" },
+
+
             { id: "actions", name: "Действия", key: "actions", value: "Действия" },
             { id: "overflow", name: "Меню", key: "overflow", value: "Меню" },
           ];

@@ -144,80 +144,80 @@ responsive: [
   let groupedEvents = [];
 let chartOptionsEvents = {};
 
-$: if (areDataReady) {
-  // Группировка событий по manager_id
-  groupedEvents = 
-    Array.isArray(events) && events.length > 0
-      ? Object.values(
-          events.reduce((acc, event) => {
-            if (!event.manager_id) return acc; // Пропускаем события без manager_id
-            if (!acc[event.manager_id]) {
-              acc[event.manager_id] = {
-                manager_id: event.manager_id || "Неизвестный менеджер",
-                count: 0,
-              };
-            }
-            acc[event.manager_id].count += 1;
-            return acc;
-          }, {})
-        )
-      : [];
+// $: if (areDataReady) {
+//   // Группировка событий по manager_id
+//   groupedEvents = 
+//     Array.isArray(events) && events.length > 0
+//       ? Object.values(
+//           events.reduce((acc, event) => {
+//             if (!event.manager_id) return acc; // Пропускаем события без manager_id
+//             if (!acc[event.manager_id]) {
+//               acc[event.manager_id] = {
+//                 manager_id: event.manager_id || "Неизвестный менеджер",
+//                 count: 0,
+//               };
+//             }
+//             acc[event.manager_id].count += 1;
+//             return acc;
+//           }, {})
+//         )
+//       : [];
 
-  // Настройки для второго графика
-  chartOptionsEvents = {
-    chart: {
-      type: "donut",
-    },
-    plotOptions: {
-      pie: {
-        customScale: 0.8,
-      },
-    },
-    title: {
-      text: 'Распределение событий по менеджерам',
-      align: 'left',
-      margin: 10,
-      offsetX: 10,
-      offsetY: 30,
-      floating: false,
-      style: {
-        fontSize: '1.5rem',
-        fontWeight: 'regular',
-        fontFamily: undefined,
-        color: 'black'
-      },
-    },
-    responsive: [
-      {
-        breakpoint: 1000,
-        options: {
-          plotOptions: {
-            pie: {
-              customScale: 1.1,
-            }
-          },
-          title: {
-            offsetY: 0,
-            style: {
-              fontSize: '12px'
-            }
-          },
-          legend: {
-            position: "bottom"
-          }
-        }
-      }
-    ],
-    series:
-      groupedEvents && groupedEvents.length > 0
-        ? groupedEvents.map((group) => group.count || 0)
-        : [0],
-    labels:
-      groupedEvents && groupedEvents.length > 0
-        ? groupedEvents.map((group) => getManagerName(group.manager_id))
-        : ["Нет данных"],
-  };
-}
+//   // Настройки для второго графика
+//   chartOptionsEvents = {
+//     chart: {
+//       type: "donut",
+//     },
+//     plotOptions: {
+//       pie: {
+//         customScale: 0.8,
+//       },
+//     },
+//     title: {
+//       text: 'Распределение событий по менеджерам',
+//       align: 'left',
+//       margin: 10,
+//       offsetX: 10,
+//       offsetY: 30,
+//       floating: false,
+//       style: {
+//         fontSize: '1.5rem',
+//         fontWeight: 'regular',
+//         fontFamily: undefined,
+//         color: 'black'
+//       },
+//     },
+//     responsive: [
+//       {
+//         breakpoint: 1000,
+//         options: {
+//           plotOptions: {
+//             pie: {
+//               customScale: 1.1,
+//             }
+//           },
+//           title: {
+//             offsetY: 0,
+//             style: {
+//               fontSize: '12px'
+//             }
+//           },
+//           legend: {
+//             position: "bottom"
+//           }
+//         }
+//       }
+//     ],
+//     series:
+//       groupedEvents && groupedEvents.length > 0
+//         ? groupedEvents.map((group) => group.count || 0)
+//         : [0],
+//     labels:
+//       groupedEvents && groupedEvents.length > 0
+//         ? groupedEvents.map((group) => getManagerName(group.manager_id))
+//         : ["Нет данных"],
+//   };
+// }
 
 
 let groupedClientsByStatus = [];
@@ -400,7 +400,7 @@ $: if (areDataReady) {
 <Header UserStatus={user}></Header>
 
 
-<Content>
+<Content class='mains'>
     <Grid padding>
       <Row>
         <Column sm={6} md={4} lg={8}>

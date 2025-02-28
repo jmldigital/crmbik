@@ -101,21 +101,23 @@ function toggleTableSettings() {
 <Header company="БИК>" 
 platformName="CRM" 
 bind:isSideNavOpen
-persistentHamburgerMenu={true}
+persistentHamburgerMenu={isAdmin ? true : false}
 >
+
+
   <svelte:fragment slot="skip-to-content">
     <SkipToContent />
   </svelte:fragment>
-
+  
   <HeaderNav>
     <HeaderNavItem text={userEmail} />
     <HeaderNavItem  text={UserStatus} />
-    
+    {#if isAdmin}
       <HeaderNavItem href="dashboard" text="Статистика" />
       <HeaderNavItem href="clients" text="Клиенты" />
-    
+      {/if}
   </HeaderNav>
-
+  
   <HeaderUtilities>
 
     <HeaderGlobalAction
@@ -147,14 +149,15 @@ persistentHamburgerMenu={true}
   </HeaderUtilities>
 
 </Header>
-
+{#if isAdmin}
 <SideNav bind:isOpen={isSideNavOpen}>
+  
   <SideNavItems>
     <SideNavLink href="dashboard" text="Статистика" />
     <SideNavLink href="clients" text="Клиенты" />
-  
   </SideNavItems>
 </SideNav>
+{/if}
 
 <Content>
   <Grid>

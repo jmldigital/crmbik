@@ -119,7 +119,7 @@ padding-left:15px!important;
 
 @media (min-width:600px) {
 
-main {
+  .mains {
   width:80vw;
 }
 
