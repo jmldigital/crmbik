@@ -6,6 +6,7 @@
   import '../src/carbon.scss';
   import Login from "./routes/Login.svelte";
   import ClientManager from './routes/Clients/ClientManager.svelte';
+  import Dashboard from './routes/Clients/Dashboard.svelte';
 
   console.log('App.svelte: Component initialized');
   
@@ -21,6 +22,7 @@
   <main>
     <Route path="" component={Login} /> 
     <Route path="clients" component={ClientManager} /> 
+    <Route path="dashboard" component={Dashboard} /> 
     <Route path="register" component={Register} />
     <Route path="reset" component={Reset} />
     <Route path="NewPassword" component={NewPassword} />

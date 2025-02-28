@@ -85,7 +85,6 @@ button:focus-visible {
   max-width: 100%;
   
   padding: 0px;
-  
 }
 
 
@@ -117,3 +116,16 @@ padding-left:15px!important;
 .space {
   height:30px;
 }
+
+@media (min-width:600px) {
+
+main {
+  width:80vw;
+}
+
+}
+
+/* .apexcharts-canvas {
+
+  background-color:grey!important;
+} */

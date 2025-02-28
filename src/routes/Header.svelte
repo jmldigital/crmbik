@@ -12,6 +12,11 @@
     Column,
     HeaderUtilities,
     HeaderGlobalAction,
+    SideNav,
+    SideNavItems,
+    SideNavMenu,
+    SideNavMenuItem,
+    SideNavLink
     
       
      } from "carbon-components-svelte";
@@ -93,18 +98,22 @@ function toggleTableSettings() {
 
 </script>
 
-<Header company="БИК>" platformName="CRM" bind:isSideNavOpen>
+<Header company="БИК>" 
+platformName="CRM" 
+bind:isSideNavOpen
+persistentHamburgerMenu={true}
+>
   <svelte:fragment slot="skip-to-content">
     <SkipToContent />
   </svelte:fragment>
+
   <HeaderNav>
     <HeaderNavItem text={userEmail} />
     <HeaderNavItem  text={UserStatus} />
-    <!-- <HeaderNavMenu text="Menu">
-      <HeaderNavItem href="/" text="Link 1" />
-      <HeaderNavItem href="/" text="Link 2" />
-      <HeaderNavItem href="/" text="Link 3" />
-    </HeaderNavMenu> -->
+    
+      <HeaderNavItem href="dashboard" text="Статистика" />
+      <HeaderNavItem href="clients" text="Клиенты" />
+    
   </HeaderNav>
 
   <HeaderUtilities>
@@ -138,6 +147,14 @@ function toggleTableSettings() {
   </HeaderUtilities>
 
 </Header>
+
+<SideNav bind:isOpen={isSideNavOpen}>
+  <SideNavItems>
+    <SideNavLink href="dashboard" text="Статистика" />
+    <SideNavLink href="clients" text="Клиенты" />
+  
+  </SideNavItems>
+</SideNav>
 
 <Content>
   <Grid>
