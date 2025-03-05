@@ -22,7 +22,7 @@
      } from "carbon-components-svelte";
 
      import Logout from "carbon-icons-svelte/lib/Logout.svelte";
-     import { navigate } from "svelte-routing";
+     import { navigate, useLocation } from "svelte-routing";
      import { adminStore } from './Stores/adminStore';
      import { userStore } from './Stores/userStore';
      import { eventStore } from './Stores/eventStore';
@@ -52,8 +52,11 @@
         console.log('Status updated:', UserStatus);
     }
 
+  // Получаем текущий маршрут
+  const location = useLocation();
 
-console.log('currentUser в хедере',userEmail);
+
+
 
 
 
@@ -163,7 +166,11 @@ persistentHamburgerMenu={isAdmin ? true : false}
   <Grid>
     <Row>
       <Column>
-        <h2>Мои клиенты</h2>
+        {#if $location.pathname === '/dashboard'}
+          <h2>Статистика</h2>
+        {:else}
+          <h2>Мои клиенты</h2>
+        {/if}
       </Column>
     </Row>
   </Grid>
