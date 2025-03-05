@@ -6,9 +6,11 @@
     Form,
     Button,
     ToastNotification,
+    Toggle
   } from "carbon-components-svelte";
   import { createEventDispatcher } from "svelte";
   import { onMount } from "svelte";
+  import { adminStore } from "../Stores/adminStore";
 
   import PhoneInput from "./PhoneInput.svelte";
 
@@ -23,8 +25,12 @@
   $: sources = $referenceStore.sources;
   $: statuses = $referenceStore.statuses;
   $: objects = $referenceStore.objects;
+  $: isAdmin = $adminStore.isAdmin;
+  // console.log('sources',sources)
 
   // Определяем props с значением по умолчанию
+
+  export let Del;
 
   export let client = {
     first_name: "",
@@ -63,6 +69,7 @@
     // Устанавливаем начальные значения при монтировании компонента
     SelectedStatus = client.status || statuses[0].value;
     SelectedSource = client.source || sources[0].value;
+    Del = false;
     // phoneValue = client.phone;
   });
 
@@ -119,13 +126,29 @@
   
   }
 
+  function checkDel (e) {
+    
+      Del = e.detail.toggled;
+ 
+    console.log('e.detail.toggled',Del);
+  }
+  // console.log('Del',Del);
+
 </script>
 
 
 <Form on:submit={handleSubmit}>
 
+  {#if isAdmin && isEditing}
+  <Toggle
+  labelText="Удалить клиента"
+  labelA="Оставить" labelB="Удалить"
+  style="color: red"
+  on:toggle={checkDel}
+/>
+{/if}
   <Select labelText="Объект" bind:selected={client.object}>
-    {#each objects as object}
+    {#each objects as object (object.id)}
       <SelectItem value={object.value} text={object.text} />
     {/each}
   </Select>
@@ -179,11 +202,17 @@
  
 
 
-  <Select labelText="Статус" bind:selected={SelectedStatus}>
+  <!-- <Select labelText="Статус" bind:selected={SelectedStatus}>
     {#each statuses as status}
       <SelectItem value={status.value} text={status.text} />
     {/each}
-  </Select>
+  </Select> -->
+
   <div class="space"></div>
   <Button type="submit" icon={Save}>Сохранить</Button>
 </Form>
+
+<style>
+
+
+</style>

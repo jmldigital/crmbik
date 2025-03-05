@@ -94,5 +94,6 @@
     bind:value={confirmPassword}
     required
   />
+  <div class="space"></div>
   <Button type="submit" kind="primary">Изменить пароль</Button>
 </Form>

@@ -27,6 +27,7 @@
   let isEditing = false;
   let lastEventStatus = null;
   // let currentClient = null;
+  let Del = false;
 
   let managerName = "";
 
@@ -87,6 +88,7 @@
   }
 
   onMount(async () => {
+    Del = false;
     try {
       // Теперь просто вызываем loadClients из store без параметров
       await clientStore.loadClients();
@@ -193,42 +195,100 @@
   }
 
   async function updateClient(clientData) {
-    try {
-      clientStore.setLoading(true);
+  try {
+    clientStore.setLoading(true);
 
-      // Деструктурируем объект, исключая свойство Manager
-      const { Manager, Touches, lastEventStatus, ...clientDataToUpdate } =
-        clientData;
+    // Деструктурируем объект, исключая свойство Manager и Touches
+    const { Manager, Touches, lastEventStatus, ...clientDataToUpdate } = clientData;
 
-      const { error } = await supabase
+    if (Del === true) {
+      console.log("Условие удаления выполнено: Del == true");
+
+      // Подсчитываем количество связанных событий
+      const { data: eventsCountData, error: eventsCountError } = await supabase
+        .from("client_events")
+        .select("id")
+        .eq("client_id", clientData.id);
+
+      if (eventsCountError) {
+        throw new Error(`Ошибка получения количества событий: ${eventsCountError.message}`);
+      }
+
+      const eventsCount = eventsCountData.length;
+
+      // Показываем confirm с количеством событий
+      const isConfirmed = confirm(
+        `Вы уверены, что хотите удалить клиента "${clientData.first_name} ${clientData.last_name}"? Будет удалено ${eventsCount} связанных событий.`
+      );
+
+      if (!isConfirmed) {
+        console.log("Операция отменена пользователем.");
+        isModalOpen = false;
+        return;
+      }
+
+      // 1. Удаляем все события клиента
+      const { error: deleteEventsError } = await supabase
+        .from("client_events")
+        .delete()
+        .eq("client_id", clientData.id);
+
+      if (deleteEventsError) {
+        throw new Error(`Ошибка удаления событий клиента: ${deleteEventsError.message}`);
+      }
+
+      console.log("Все события клиента успешно удалены.");
+
+      // 2. Удаляем клиента
+      const { error: deleteClientError } = await supabase
         .from("clients")
-        .update(clientDataToUpdate)
+        .delete()
         .eq("id", clientData.id);
 
-      if (error) throw error;
+      if (deleteClientError) {
+        throw new Error(`Ошибка удаления клиента: ${deleteClientError.message}`);
+      }
 
-      console.log("clientData при обновлении", clientData);
+      console.log("Клиент успешно удален.");
+
+      // Обновляем store
+      clientStore.setClients($clientStore.clients.filter((c) => c.id !== clientData.id));
+      eventStore.setEvents($eventStore.events.filter((e) => e.client_id !== clientData.id));
 
       // Показываем уведомление об успехе
-          
-        // Показываем уведомление об успехе
-        showToast("success", "Клиент обновлен", `${clientData.first_name} ${clientData.last_name}`);
+      showToast("success", "Клиент удален", `${clientData.first_name} ${clientData.last_name}`);
 
-   
-      // Обновляем store
-      const currentClients = $clientStore.clients;
-      clientStore.setClients(
-        currentClients.map((c) => (c.id === clientData.id ? clientData : c))
-      );
-    } catch (error) {
-      clientStore.setError(error.message);
-      throw error;
-    } finally {
-      clientStore.setLoading(false);
-      isEditing = false;
-  
+      isModalOpen = false;
+      return;
     }
+
+    // Если Del !== true, выполняем обычное обновление клиента
+    const { error } = await supabase
+      .from("clients")
+      .update(clientDataToUpdate)
+      .eq("id", clientData.id);
+
+    if (error) throw error;
+
+    console.log("Клиент успешно обновлен.");
+
+    // Обновляем store
+    clientStore.setClients(
+      $clientStore.clients.map((c) => (c.id === clientData.id ? clientData : c))
+    );
+
+    // Показываем уведомление об успехе
+    showToast("success", "Клиент обновлен", `${clientData.first_name} ${clientData.last_name}`);
+  } catch (error) {
+    clientStore.setError(error.message);
+    console.error("Error updating or deleting client:", error);
+    showToast("danger", "Ошибка", error.message, false);
+  } finally {
+    clientStore.setLoading(false);
+    isEditing = false;
   }
+}
+
 </script>
 
 <Header UserStatus={user}></Header>
@@ -255,7 +315,11 @@
     on:click:button--secondary={() => (isModalOpen = false)}
     hasForm
   >
-    <ClientForm client={currentClient} {isEditing} on:submit={handleSubmit} />
+    <ClientForm 
+    bind:Del 
+    client={currentClient} 
+    bind:isEditing={isEditing} 
+    on:submit={handleSubmit} />
   </Modal>
 </div>
 

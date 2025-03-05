@@ -95,6 +95,7 @@
             bind:value={email}
             required
           />
+          <div class="space"></div>
           <Button type="submit" kind="primary">Сбросить пароль</Button>
           
         </Form>

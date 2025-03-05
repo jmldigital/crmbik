@@ -89,7 +89,7 @@
           return Math.round(absoluteValue); // Округляем до ближайшего целого
         },
         style: {
-          fontSize: "20px",
+          fontSize: fontSize,
         },
       },
 
@@ -110,7 +110,7 @@
                 show: true,
                 showAlways: true,
                 label: "Всего",
-                fontSize: "22px",
+                fontSize: fontSize,
                 fontFamily: "Helvetica, Arial, sans-serif",
                 fontWeight: 600,
                 color: "#373d3f",
@@ -130,10 +130,10 @@
         align: "left",
         margin: 10,
         offsetX: 10,
-        offsetY: 30,
+        offsetY: offsetY,
         floating: false,
         style: {
-          fontSize: "1.5rem",
+          fontSize: '18px',
           fontWeight: "regular",
           fontFamily: undefined,
           color: "black",
@@ -149,9 +149,9 @@
               },
             },
             title: {
-              offsetY: 0,
+              offsetY: offsetY,
               style: {
-                fontSize: "12px",
+                fontSize: fontSize,
               },
             },
             legend: {
@@ -289,7 +289,7 @@
           return Math.round(absoluteValue); // Округляем до ближайшего целого
         },
         style: {
-          fontSize: "20px",
+          fontSize: fontSize,
         },
       },
 
@@ -315,7 +315,7 @@
                 show: true,
                 showAlways: true,
                 label: "Всего",
-                fontSize: "22px",
+                fontSize: fontSize,
                 fontFamily: "Helvetica, Arial, sans-serif",
                 fontWeight: 600,
                 color: "#373d3f",
@@ -337,10 +337,10 @@
         align: "left",
         margin: 10,
         offsetX: 10,
-        offsetY: 30,
+        offsetY: offsetY,
         floating: false,
         style: {
-          fontSize: "1.5rem",
+          fontSize: '18px',
           fontWeight: "regular",
           fontFamily: undefined,
           color: "black",
@@ -356,9 +356,9 @@
               },
             },
             title: {
-              offsetY: 0,
+              offsetY: offsetY,
               style: {
-                fontSize: "12px",
+                fontSize: fontSize,
               },
             },
             legend: {
@@ -410,7 +410,7 @@
           return Math.round(absoluteValue); // Округляем до ближайшего целого
         },
         style: {
-          fontSize: "20px",
+          fontSize: fontSize,
         },
       },
 
@@ -431,7 +431,7 @@
                 show: true,
                 showAlways: true,
                 label: "Всего",
-                fontSize: "22px",
+                fontSize: fontSize,
                 fontFamily: "Helvetica, Arial, sans-serif",
                 fontWeight: 600,
                 color: "#373d3f",
@@ -450,10 +450,10 @@
         align: "left",
         margin: 10,
         offsetX: 10,
-        offsetY: 30,
+        offsetY: offsetY,
         floating: false,
         style: {
-          fontSize: "1.5rem",
+          fontSize: '18px',
           fontWeight: "regular",
           fontFamily: undefined,
           color: "black",
@@ -469,9 +469,9 @@
               },
             },
             title: {
-              offsetY: 0,
+              offsetY: offsetY,
               style: {
-                fontSize: "12px",
+                fontSize: fontSize,
               },
             },
             legend: {
@@ -510,6 +510,8 @@
   let sm = 6;
   let md = 4;
   let lg = 8;
+  let fontSize = '1em';
+  let offsetY = 10;
 </script>
 
 <Header UserStatus={user}></Header>

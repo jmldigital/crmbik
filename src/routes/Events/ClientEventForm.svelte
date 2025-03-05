@@ -8,34 +8,75 @@
   } from "carbon-components-svelte";
   import { createEventDispatcher } from "svelte";
   import { referenceStore } from "../Stores/referenceStore";
-
+  import { onMount } from "svelte";
   import Save from "carbon-icons-svelte/lib/Save.svelte";
 
 
+  $: ClientStatuses = $referenceStore.statuses;
+  $: eventStatuses = $referenceStore.eventStatus;
+
   export let isEditing = false;
+ // Используем spread оператор для объединения defaultEvent с переданным event
+ export let event = null;
+ export let clientStatus;
+
+
   const dispatch = createEventDispatcher();
   let errors = {};
 
-  // Определяем значения по умолчанию
-  const defaultEvent = {
-    status: "Звонок",
-    description: "",
-  };
+  // Инициализируем выбранные значения
+// let SelectedStatus;
+let currentEvent ={};
 
-  $: eventStatuses = $referenceStore.eventStatus;
 
-  // Используем spread оператор для объединения defaultEvent с переданным event
-  export let event = null;
+// $: clientStatus = SelectedStatus; // Синхронизируем SelectedStatus с prop'ом
+
+const defaultEvent = {
+  status: 'Звонок',
+  description: '',
+};
+
+
+
+onMount(() => {
+    // Устанавливаем начальные значения при монтировании компонента
+      // SelectedStatus = ClientStatuses[1]?.value || ''; // Устанавливается позже
+
+    // clientStatus = SelectedStatus || ClientStatuses[1].value;
+    //  console.log('clientStatus в форме при монтировании ', clientStatus)
+    // phoneValue = client.phone;
+  });
+
+  
+//   // Определяем значения по умолчанию
+//   const defaultEvent = {
+//   status: 'Звонок', // Или другое значение по умолчанию
+//   description: '',
+//   clientStatus: SelectedStatus
+// };
+
+  
+
+ 
+
   $: currentEvent = { ...defaultEvent, ...(event || {}) };
+
+  // $: console.log("clientStatus в модалке при открытии ", clientStatus);
 
   function handleSubmit(e) {
     e.preventDefault();
 
     if (validateForm()) {
-      console.log("форма валидна обновляем клиента", currentEvent);
-      dispatch("submit", currentEvent);
+    // Добавляем clientStatus в отправляемые данные
+  
+    const eventData = {
+      status: currentEvent.status,
+      description: currentEvent.description
+    };
+    console.log("форма валидна обновляем клиента", eventData);
+    dispatch("submit", eventData);
     } else {
-      console.log("форма не валидна", currentEvent);
+      console.log("форма не валидна",currentEvent);
     }
   }
 
@@ -55,6 +96,14 @@
     {#each eventStatuses as status}
       <SelectItem value={status.value} text={status.text} />
     {/each}
+  </Select>
+
+
+    <Select labelText="Статус клиента" bind:selected={clientStatus} >
+    {#each ClientStatuses.slice(1) as status (status.value)}
+    <SelectItem value={status.value} text={status.text} />
+  {/each}
+  
   </Select>
 
   <TextArea
